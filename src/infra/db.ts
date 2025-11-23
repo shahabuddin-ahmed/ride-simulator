@@ -1,5 +1,6 @@
 import { Sequelize } from "sequelize";
 import newSequelize from "./sequelize";
+import "../model";
 
 export const initializeDBConnection = async (): Promise<Sequelize> => {
     const sequelize = newSequelize();
