@@ -1,2 +1,2 @@
 # ride-simulator
-Aide Simulator with Node Express and MySQL
+Ride Simulator with Node Express and MySQL
