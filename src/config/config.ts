@@ -29,6 +29,9 @@ interface Config {
 	SEQUELIZEOPTIONS: SequelizeOptions;
 	APPLICATION_SERVER_PORT: number;
 	APP_FORCE_SHUTDOWN_SECOND: number;
+	JWT_SECRET: string;
+	OTP_EXPIRY_MINUTES: number;
+	OTP_SECRET?: string;
 }
 
 const config: Config = {
@@ -55,6 +58,9 @@ const config: Config = {
 	},
 	APPLICATION_SERVER_PORT: Number(process.env.APPLICATION_SERVER_PORT) || 3000,
 	APP_FORCE_SHUTDOWN_SECOND: Number(process.env.APP_FORCE_SHUTDOWN_SECOND) || 30,
+	JWT_SECRET: process.env.JWT_SECRET || "this is random jwt secret key",
+    OTP_EXPIRY_MINUTES: Number(process.env.OTP_EXPIRY_MINUTES) || 5,
+    OTP_SECRET: process.env.OTP_SECRET || "this is random otp secret key",
 };
 
 export default config;

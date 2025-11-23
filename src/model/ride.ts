@@ -75,19 +75,19 @@ Ride.init(
             onUpdate: "CASCADE",
         },
         pickupLat: {
-            type: DataTypes.FLOAT,
+            type: DataTypes.DOUBLE,
             allowNull: false,
         },
         pickupLng: {
-            type: DataTypes.FLOAT,
+            type: DataTypes.DOUBLE,
             allowNull: false,
         },
         dropoffLat: {
-            type: DataTypes.FLOAT,
+            type: DataTypes.DOUBLE,
             allowNull: false,
         },
         dropoffLng: {
-            type: DataTypes.FLOAT,
+            type: DataTypes.DOUBLE,
             allowNull: false,
         },
         type: {
