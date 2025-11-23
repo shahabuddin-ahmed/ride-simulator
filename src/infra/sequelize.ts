@@ -1,17 +1,19 @@
-import { Sequelize } from "sequelize";
-import config from "../config/config";
-
+import { Sequelize } from 'sequelize';
+import config from '../config/config';
 
 export class ConnectDB {
-    private static instance: Sequelize
+    private static instance: Sequelize;
     public static initialize(): Sequelize {
-        return new Sequelize(config.SEQUELIZE.MYSQL_DATABASE, config.SEQUELIZE.USERNAME, config.SEQUELIZE.PASSWORD,
-            config.SEQUELIZEOPTIONS
+        return new Sequelize(
+            config.SEQUELIZE.MYSQL_DATABASE,
+            config.SEQUELIZE.USERNAME,
+            config.SEQUELIZE.PASSWORD,
+            config.SEQUELIZEOPTIONS,
         );
     }
 
     public static getInstance(): Sequelize {
-        if(ConnectDB.instance) {
+        if (ConnectDB.instance) {
             return this.instance;
         }
         this.instance = ConnectDB.initialize();
