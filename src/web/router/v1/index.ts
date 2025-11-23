@@ -2,10 +2,18 @@ import { Router } from "express";
 import { NotFoundException } from "../../exception/not-found-exception";
 import { ERROR_CODES } from "../../../constant/error";
 import { newHealthRouter } from "./health";
+import { AuthController } from "../../controller/v1/auth";
+import { newAuthRouter } from "./auth";
 
-export const newV1Router = async ({}: {}): Promise<Router> => {
+export const newV1Router = async ({
+    authController,
+}: {
+    authController: AuthController;
+}): Promise<Router> => {
     const v1 = Router();
     v1.use("/health", await newHealthRouter());
+    v1.use("/auth", await newAuthRouter(authController));
+
     v1.use("*", (_req, res) => {
         console.log(`not_found_for_v1`, _req.method, _req.baseUrl);
         throw new NotFoundException(ERROR_CODES.E_PAGE_NOT_FOUND, "", [

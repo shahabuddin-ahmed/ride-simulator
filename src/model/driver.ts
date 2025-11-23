@@ -3,7 +3,7 @@ import newSequelize from "../infra/sequelize";
 
 export interface DriverInterface {
     id?: number;
-    userId: number;
+    userId?: number;
     currentLat?: number | null;
     currentLng?: number | null;
     isOnline?: boolean;

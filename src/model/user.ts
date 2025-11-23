@@ -2,28 +2,42 @@ import { Model, DataTypes, Optional } from "sequelize";
 import { UserType } from "../constant/common";
 import newSequelize from "../infra/sequelize";
 
-export interface UserAttributes {
+export interface UserInterface {
     id?: number;
-    phone: string;
-    email?: string | null;
+    fistName: string | null;
+    lastName: string | null;
+    mobile: string;
+    email: string | null;
     type: UserType;
+    password?: string | null;
     isActive?: boolean;
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-type UserCreationAttributes = Optional<
-    UserAttributes,
-    "id" | "email" | "isActive" | "createdAt" | "updatedAt"
+type UserCreationInterface = Optional<
+    UserInterface,
+    | "id"
+    | "fistName"
+    | "lastName"
+    | "email"
+    | "password"
+    | "isActive"
+    | "createdAt"
+    | "updatedAt"
 >;
 
-class User extends Model<UserAttributes, UserCreationAttributes>
-    implements UserAttributes
+class User
+    extends Model<UserInterface, UserCreationInterface>
+    implements UserInterface
 {
     public id!: number;
-    public phone!: string;
+    public fistName!: string | null;
+    public lastName!: string | null;
+    public mobile!: string;
     public email!: string | null;
     public type!: UserType;
+    public password!: string | null;
     public isActive!: boolean;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -36,18 +50,30 @@ User.init(
             autoIncrement: true,
             primaryKey: true,
         },
-        phone: {
-            type: DataTypes.STRING(32),
+        fistName: {
+            type: DataTypes.STRING(100),
+            allowNull: true,
+        },
+        lastName: {
+            type: DataTypes.STRING(100),
+            allowNull: true,
+        },
+        mobile: {
+            type: DataTypes.STRING(50),
             allowNull: false,
-            unique: true,
         },
         email: {
-            type: DataTypes.STRING(191),
+            type: DataTypes.STRING(100),
             allowNull: true,
+            unique: true,
         },
         type: {
             type: DataTypes.ENUM(...Object.values(UserType)),
             allowNull: false,
+        },
+        password: {
+            type: DataTypes.STRING(225),
+            allowNull: true,
         },
         isActive: {
             type: DataTypes.BOOLEAN,
