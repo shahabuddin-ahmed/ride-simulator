@@ -6,8 +6,9 @@ import { authenticated, requireDriver } from "../../middleware/auth";
 export const newDriverRouter = async (driverController: DriverControllerInterface): Promise<Router> => {
     const router = Router();
 
-    router.patch("/me/status", authenticated, requireDriver, asyncHandler(driverController.updateStatus));
-    router.patch("/me/location", authenticated, requireDriver, asyncHandler(driverController.updateLocation));
+    router.patch("/status", authenticated, requireDriver, asyncHandler(driverController.updateStatus));
+    router.patch("/location", authenticated, requireDriver, asyncHandler(driverController.updateLocation));
+    router.post("/offline-pairing", authenticated, requireDriver, asyncHandler(driverController.generateOfflinePairing));
 
     return router;
 };
