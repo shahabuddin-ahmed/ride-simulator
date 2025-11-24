@@ -1,0 +1,55 @@
+version: "3"
+services:
+  web:
+    container_name: rideSimulatorService
+    build:
+      dockerfile: Dockerfile.dev
+      context: .
+    depends_on:
+      - db
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/server
+    environment:
+      MYSQL_DATABASE: ride_sharing
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+      MYSQL_HOST: db
+      MYSQL_PORT: 3306
+      SYNCHRONIZE: "true"
+      APPLICATION_SERVER_PORT: 3000
+      APP_FORCE_SHUTDOWN_SECOND: 30
+      JWT_SECRET: "this is random jwt secret key"
+      JWT_EXPIRATION: 43200
+      OTP_EXPIRY_MINUTES: 5
+      OTP_SECRET: "this is random otp secret key"
+      RIDE_BASE_FARE: 50
+      RIDE_PER_KM_RATE: 12.5
+      RIDE_MIN_FARE: 70
+      RIDE_NEARBY_RADIUS_KM: 2
+      RIDE_DRIVER_LOCATION_FRESH_MINUTES: 3
+
+  # Database
+  db:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: ride_sharing
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: admin
+
+  # phpmyadmin
+  phpmyadmin:
+    depends_on:
+      - db
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: root

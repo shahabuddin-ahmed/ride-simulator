@@ -28,6 +28,16 @@ interface JWTConfig {
     JWT_EXPIRATION: number;
 }
 
+interface RidePricingConfig {
+	BASE_FARE: number;
+	PER_KM_RATE: number;
+	MIN_FARE: number;
+}
+
+interface RideAssignmentConfig {
+	NEARBY_RADIUS_KM: number;
+	DRIVER_LOCATION_FRESH_MINUTES: number;
+}
 
 interface Config {
 	SEQUELIZE: SequelizeConfig;
@@ -37,6 +47,8 @@ interface Config {
 	JWT: JWTConfig;
 	OTP_EXPIRY_MINUTES: number;
 	OTP_SECRET?: string;
+	RIDE_PRICING: RidePricingConfig;
+	RIDE_ASSIGNMENT: RideAssignmentConfig;
 }
 
 const config: Config = {
@@ -69,6 +81,15 @@ const config: Config = {
 	},
     OTP_EXPIRY_MINUTES: Number(process.env.OTP_EXPIRY_MINUTES) || 5,
     OTP_SECRET: process.env.OTP_SECRET || "this is random otp secret key",
+	RIDE_PRICING: {
+		BASE_FARE: Number(process.env.RIDE_BASE_FARE) || 50,
+		PER_KM_RATE: Number(process.env.RIDE_PER_KM_RATE) || 12.5,
+		MIN_FARE: Number(process.env.RIDE_MIN_FARE) || 70,
+	},
+	RIDE_ASSIGNMENT: {
+		NEARBY_RADIUS_KM: Number(process.env.RIDE_NEARBY_RADIUS_KM) || 2,
+		DRIVER_LOCATION_FRESH_MINUTES: Number(process.env.RIDE_DRIVER_LOCATION_FRESH_MINUTES) || 3,
+	},
 };
 
 export default config;
