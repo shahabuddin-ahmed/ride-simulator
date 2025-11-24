@@ -4,7 +4,7 @@ import newSequelize from "../infra/sequelize";
 
 export interface UserInterface {
     id?: number;
-    fistName: string | null;
+    fristName: string | null;
     lastName: string | null;
     mobile: string;
     email: string | null;
@@ -17,22 +17,12 @@ export interface UserInterface {
 
 type UserCreationInterface = Optional<
     UserInterface,
-    | "id"
-    | "fistName"
-    | "lastName"
-    | "email"
-    | "password"
-    | "isActive"
-    | "createdAt"
-    | "updatedAt"
+    "id" | "fristName" | "lastName" | "email" | "password" | "isActive" | "createdAt" | "updatedAt"
 >;
 
-class User
-    extends Model<UserInterface, UserCreationInterface>
-    implements UserInterface
-{
+class User extends Model<UserInterface, UserCreationInterface> implements UserInterface {
     public id!: number;
-    public fistName!: string | null;
+    public fristName!: string | null;
     public lastName!: string | null;
     public mobile!: string;
     public email!: string | null;
@@ -50,7 +40,7 @@ User.init(
             autoIncrement: true,
             primaryKey: true,
         },
-        fistName: {
+        fristName: {
             type: DataTypes.STRING(100),
             allowNull: true,
         },
@@ -88,7 +78,7 @@ User.init(
         underscored: false,
         sequelize: newSequelize(),
         modelName: "user",
-    }
+    },
 );
 
 export default User;

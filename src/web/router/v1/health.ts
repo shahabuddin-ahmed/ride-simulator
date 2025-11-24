@@ -8,7 +8,7 @@ export const newHealthRouter = async (): Promise<Router> => {
             code: "SUCCESS",
             message: "Welcome to Ride Sharing Service API",
             response: null,
-            errors: []
+            errors: [],
         });
     });
 
