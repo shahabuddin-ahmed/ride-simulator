@@ -7,7 +7,7 @@ export const initializeDBConnection = async (): Promise<Sequelize> => {
     try {
         await sequelize.authenticate();
         // Uncomment the line below if you want to sync the database on initialization
-        await sequelize.sync({ alter: true, force: true });
+        // await sequelize.sync({ alter: true, });
         console.log('Connected successfully to the database server');
     } catch (err) {
         console.log('Failed to connect the database server');

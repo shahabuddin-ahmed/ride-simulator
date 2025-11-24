@@ -1,0 +1,226 @@
+import { ERROR_CODES } from "../constant/error";
+import { PaymentStatus, RideStatus, RideType } from "../constant/common";
+import { RideInterface } from "../model/ride";
+import { RideRepoInterface } from "../repo/ride";
+import { DriverRepoInterface } from "../repo/driver";
+import { NotFoundException } from "../web/exception/not-found-exception";
+import { BadRequestException } from "../web/exception/bad-request-exception";
+
+const NEARBY_RADIUS_KM = 2; // how far we consider a driver "nearby"
+const DRIVER_LOCATION_FRESH_MINUTES = 3; // how fresh the driver's lastPingAt must be
+
+export interface OnlineRideCreateInput {
+    riderId: number;
+    pickupLat: number;
+    pickupLng: number;
+    dropoffLat: number;
+    dropoffLng: number;
+}
+
+export interface RideServiceInterface {
+    createOnlineRide(input: OnlineRideCreateInput): Promise<RideInterface | null>;
+    getById(id: number): Promise<RideInterface>;
+    driverAcceptRide(rideId: number, driverId: number): Promise<RideInterface | null>;
+    driverStartRide(rideId: number, driverId: number): Promise<RideInterface | null>;
+    driverCompleteRide(rideId: number, driverId: number): Promise<RideInterface | null>;
+    riderCancelRide(rideId: number, riderId: number): Promise<RideInterface | null>;
+    driverCancelRide(rideId: number, driverId: number): Promise<RideInterface | null>;
+}
+
+export class RideService implements RideServiceInterface {
+    constructor(private rideRepo: RideRepoInterface, private driverRepo: DriverRepoInterface) {}
+
+    async createOnlineRide(input: OnlineRideCreateInput): Promise<RideInterface | null> {
+        const payload: RideInterface = {
+            riderId: input.riderId,
+            driverId: null,
+            pickupLat: input.pickupLat,
+            pickupLng: input.pickupLng,
+            dropoffLat: input.dropoffLat,
+            dropoffLng: input.dropoffLng,
+            type: RideType.ONLINE,
+            status: RideStatus.REQUESTED,
+            paymentStatus: PaymentStatus.UNPAID,
+        };
+
+        const created = await this.rideRepo.create(payload);
+
+        // Immediately try to assign the nearest online driver
+        return this.assignNearestDriver(created);
+    }
+
+    async getById(id: number): Promise<RideInterface> {
+        const ride = await this.rideRepo.findById(id);
+        if (!ride) {
+            throw new NotFoundException(ERROR_CODES.E_PAGE_NOT_FOUND, "Ride not found");
+        }
+        return ride;
+    }
+
+    /**
+     * Assign nearest online driver based on driver's currentLat/currentLng.
+     * All DB fetches go through repos.
+     */
+    private async assignNearestDriver(ride: RideInterface): Promise<RideInterface | null> {
+        const freshSince = new Date(Date.now() - DRIVER_LOCATION_FRESH_MINUTES * 60 * 1000);
+
+        const drivers = await this.driverRepo.findFreshOnlineDriversWithLocation(freshSince);
+
+        if (!drivers.length) {
+            await this.rideRepo.update(ride.id!, {
+                status: RideStatus.NO_DRIVER,
+            });
+
+            return this.rideRepo.findRideWithDetails(ride.id!);
+        }
+
+        const candidates = drivers
+            .map((driver) => {
+                const distanceKm = this.calculateDistanceKm(
+                    ride.pickupLat,
+                    ride.pickupLng,
+                    driver.currentLat!,
+                    driver.currentLng!,
+                );
+                return { driver, distanceKm };
+            })
+            .filter((item) => item.distanceKm <= NEARBY_RADIUS_KM)
+            .sort((a, b) => a.distanceKm - b.distanceKm);
+
+        if (!candidates.length) {
+            await this.rideRepo.update(ride.id!, {
+                status: RideStatus.NO_DRIVER,
+            });
+            return this.rideRepo.findById(ride.id!);
+        }
+
+        const chosenDriver = candidates[0].driver;
+
+        await this.rideRepo.update(ride.id!, {
+            driverId: chosenDriver.userId,
+            status: RideStatus.ASSIGNED,
+        });
+
+        return this.rideRepo.findRideWithDetails(ride.id!);
+    }
+
+    /**
+     * Simple Haversine distance in KM.
+     */
+    private calculateDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number): number {
+        const toRad = (value: number) => (value * Math.PI) / 180;
+
+        const dLat = toRad(lat2 - lat1);
+        const dLng = toRad(lng2 - lng1);
+
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const R = 6371; // radius of Earth in KM
+
+        return R * c;
+    }
+
+    private async loadOnlineRideOrThrow(id: number): Promise<RideInterface> {
+        const ride = await this.rideRepo.findById(id);
+        if (!ride) {
+            throw new NotFoundException(ERROR_CODES.E_PAGE_NOT_FOUND, "Ride not found");
+        }
+        if (ride.type !== RideType.ONLINE) {
+            throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "Operation allowed only for online rides");
+        }
+        return ride as unknown as RideInterface;
+    }
+
+    private ensureDriver(ride: RideInterface, driverId: number): void {
+        if (!ride.driverId || ride.driverId !== driverId) {
+            throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "Ride does not belong to this driver");
+        }
+    }
+
+    private async transitionStatusForDriver(
+        rideId: number,
+        driverId: number,
+        allowedFromStatuses: RideStatus[],
+        toStatus: RideStatus,
+    ): Promise<RideInterface | null> {
+        const ride = await this.loadOnlineRideOrThrow(rideId);
+        this.ensureDriver(ride, driverId);
+
+        if (!ride.status || !allowedFromStatuses.includes(ride.status)) {
+            throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, `Invalid status transition from ${ride.status}`);
+        }
+
+        await this.rideRepo.update(rideId, {
+            status: toStatus,
+        });
+
+        return this.rideRepo.findById(rideId);
+    }
+
+    async driverAcceptRide(rideId: number, driverId: number): Promise<RideInterface | null> {
+        return this.transitionStatusForDriver(rideId, driverId, [RideStatus.ASSIGNED], RideStatus.ACCEPTED);
+    }
+
+    async driverStartRide(rideId: number, driverId: number): Promise<RideInterface | null> {
+        return this.transitionStatusForDriver(rideId, driverId, [RideStatus.ACCEPTED], RideStatus.STARTED);
+    }
+
+    async driverCompleteRide(rideId: number, driverId: number): Promise<RideInterface | null> {
+        // status STARTED → COMPLETED
+        await this.transitionStatusForDriver(rideId, driverId, [RideStatus.STARTED], RideStatus.COMPLETED);
+
+        // mark payment paid
+        await this.rideRepo.update(rideId, {
+            paymentStatus: PaymentStatus.PAID,
+        });
+        return this.rideRepo.findById(rideId);
+    }
+
+    async riderCancelRide(rideId: number, riderId: number): Promise<RideInterface | null> {
+        const ride = await this.loadOnlineRideOrThrow(rideId);
+        if (ride.riderId !== riderId) {
+            throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "Ride does not belong to this rider");
+        }
+
+        if (
+            ride.status === RideStatus.COMPLETED ||
+            ride.status === RideStatus.CANCELLED_BY_RIDER ||
+            ride.status === RideStatus.CANCELLED_BY_DRIVER
+        ) {
+            throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, `Cannot cancel ride with status ${ride.status}`);
+        }
+
+        await this.rideRepo.update(rideId, {
+            status: RideStatus.CANCELLED_BY_RIDER,
+        });
+        return this.rideRepo.findById(rideId);
+    }
+
+    async driverCancelRide(rideId: number, driverId: number): Promise<RideInterface | null> {
+        const ride = await this.loadOnlineRideOrThrow(rideId);
+        this.ensureDriver(ride, driverId);
+
+        if (
+            ride.status === RideStatus.COMPLETED ||
+            ride.status === RideStatus.CANCELLED_BY_RIDER ||
+            ride.status === RideStatus.CANCELLED_BY_DRIVER
+        ) {
+            throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, `Cannot cancel ride with status ${ride.status}`);
+        }
+
+        await this.rideRepo.update(rideId, {
+            status: RideStatus.CANCELLED_BY_DRIVER,
+        });
+        return this.rideRepo.findById(rideId);
+    }
+}
+
+export const newRideService = async (
+    rideRepo: RideRepoInterface,
+    driverRepo: DriverRepoInterface,
+): Promise<RideService> => {
+    return new RideService(rideRepo, driverRepo);
+};

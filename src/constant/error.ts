@@ -6,6 +6,8 @@ export enum ERROR_CODES {
     E_INVALID_OTP = "E_INVALID_OTP",
     E_INACTIVE_USER = "E_INACTIVE_USER",
     E_CONTACT_REQUIRED = "E_CONTACT_REQUIRED",
+    E_INVALID_TOKEN = "E_INVALID_TOKEN",
+    E_INVALID_CREDENTIALS = "E_INVALID_CREDENTIALS",
 }
 
 export const errorMessages: Record<ERROR_CODES, { message: string }> = {
@@ -30,6 +32,12 @@ export const errorMessages: Record<ERROR_CODES, { message: string }> = {
     },
     E_CONTACT_REQUIRED: {
         message: "Email and mobile are required",
+    },
+    E_INVALID_CREDENTIALS: {
+        message: "Invalid credentials"
+    },
+    E_INVALID_TOKEN: {
+        message: "Invalid token"
     },
 };
 
