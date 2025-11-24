@@ -95,7 +95,7 @@ Ride.init(
             allowNull: false,
         },
         price: {
-            type: DataTypes.DECIMAL(10, 2),
+            type: DataTypes.DOUBLE,
             allowNull: false,
         },
         rideCode: {
