@@ -6,6 +6,7 @@ import { DriverServiceInterface } from "../../../service/driver";
 export interface DriverControllerInterface {
     updateStatus(req: Request, res: Response): any;
     updateLocation(req: Request, res: Response): any;
+    generateOfflinePairing(req: Request, res: Response): any;
 }
 
 export class DriverController extends Controller implements DriverControllerInterface {
@@ -13,6 +14,7 @@ export class DriverController extends Controller implements DriverControllerInte
         super();
         this.updateStatus = this.updateStatus.bind(this);
         this.updateLocation = this.updateLocation.bind(this);
+        this.generateOfflinePairing = this.generateOfflinePairing.bind(this);
     }
 
     async updateStatus(req: Request, res: Response): Promise<any> {
@@ -45,6 +47,12 @@ export class DriverController extends Controller implements DriverControllerInte
         });
 
         return this.sendResponse({ response }, 200, res);
+    }
+
+    async generateOfflinePairing(req: Request, res: Response): Promise<any> {
+        const pairing = await this.driverService.generateOfflinePairing(req.user.id);
+
+        return this.sendResponse({ response: pairing }, 201, res);
     }
 }
 

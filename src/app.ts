@@ -7,6 +7,7 @@ import { initializeDBConnection } from "./infra/db";
 import { newUserRepo } from "./repo/user";
 import { newRideRepo } from "./repo/ride";
 import { newDriverRepo } from "./repo/driver";
+import { newOfflinePairingRepo } from "./repo/offline-paring";
 import { newAuthService } from "./service/auth";
 import { newRideService } from "./service/ride";
 import { newDriverService } from "./service/driver";
@@ -26,11 +27,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
     const userRepo = await newUserRepo();
     const rideRepo = await newRideRepo();
     const driverRepo = await newDriverRepo();
+    const offlinePairingRepo = await newOfflinePairingRepo();
 
     // Initialize Service
     const authService = await newAuthService(userRepo);
-    const rideService = await newRideService(rideRepo, driverRepo);
-    const driverService = await newDriverService(driverRepo);
+    const rideService = await newRideService(rideRepo, driverRepo, offlinePairingRepo);
+    const driverService = await newDriverService(driverRepo, offlinePairingRepo);
     
     // Initialize Controller
     const authV1Controller = await newAuthV1Controller(authService);
