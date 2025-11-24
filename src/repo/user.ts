@@ -47,7 +47,7 @@ export class UserRepo implements UserRepoInterface {
     }
 
     registerDriver(user: UserInterface, driver: DriverInterface): Promise<User> {
-        return this.withTransaction<User>(async (transaction) => {
+        return UserRepo.withTransaction<User>(async (transaction) => {
             const createdUser = await User.create(user, { transaction });
             await Driver.create(
                 {
@@ -61,7 +61,7 @@ export class UserRepo implements UserRepoInterface {
         });
     }
 
-    private async withTransaction<T>(fn: (transaction: Transaction) => Promise<T>): Promise<T> {
+    public static async withTransaction<T>(fn: (transaction: Transaction) => Promise<T>): Promise<T> {
         const transaction = await newSequelize().transaction();
         try {
             const response = await fn(transaction);

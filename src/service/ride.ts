@@ -1,16 +1,30 @@
 import { ERROR_CODES } from "../constant/error";
 import { PaymentStatus, RideStatus, RideType } from "../constant/common";
-import { RideInterface } from "../model/ride";
+import Ride, { RideInterface } from "../model/ride";
 import { RideRepoInterface } from "../repo/ride";
 import { DriverRepoInterface } from "../repo/driver";
 import { NotFoundException } from "../web/exception/not-found-exception";
 import { BadRequestException } from "../web/exception/bad-request-exception";
+import { OfflinePairingRepoInterface } from "../repo/offline-paring";
 
 const NEARBY_RADIUS_KM = 2; // how far we consider a driver "nearby"
 const DRIVER_LOCATION_FRESH_MINUTES = 3; // how fresh the driver's lastPingAt must be
 
 export interface OnlineRideCreateInput {
     riderId: number;
+    pickupLat: number;
+    pickupLng: number;
+    dropoffLat: number;
+    dropoffLng: number;
+}
+
+export interface ScheduledRideCreateInput extends OnlineRideCreateInput {
+    scheduledAt: Date;
+}
+
+export interface OfflineRideCreateInput {
+    riderId: number;
+    pairingCode: string;
     pickupLat: number;
     pickupLng: number;
     dropoffLat: number;
@@ -25,11 +39,22 @@ export interface RideServiceInterface {
     driverCompleteRide(rideId: number, driverId: number): Promise<RideInterface | null>;
     riderCancelRide(rideId: number, riderId: number): Promise<RideInterface | null>;
     driverCancelRide(rideId: number, driverId: number): Promise<RideInterface | null>;
+    // scheduled
+    createScheduledRide(input: ScheduledRideCreateInput): Promise<RideInterface>;
+    processDueScheduledRides(): Promise<number>;
+
+    // offline
+    createOfflineRide(input: OfflineRideCreateInput): Promise<RideInterface | null>;
 }
 
 export class RideService implements RideServiceInterface {
-    constructor(private rideRepo: RideRepoInterface, private driverRepo: DriverRepoInterface) {}
+    constructor(private rideRepo: RideRepoInterface, private driverRepo: DriverRepoInterface, private offlinePairingRepo: OfflinePairingRepoInterface) {
+        this.rideRepo = rideRepo;
+        this.driverRepo = driverRepo;
+        this.offlinePairingRepo = offlinePairingRepo;
+    }
 
+    // ========= ONLINE =========
     async createOnlineRide(input: OnlineRideCreateInput): Promise<RideInterface | null> {
         const payload: RideInterface = {
             riderId: input.riderId,
@@ -47,6 +72,69 @@ export class RideService implements RideServiceInterface {
 
         // Immediately try to assign the nearest online driver
         return this.assignNearestDriver(created);
+    }
+
+    // ========= SCHEDULED =========
+
+    async createScheduledRide(input: ScheduledRideCreateInput): Promise<RideInterface> {
+        const now = new Date();
+        if (input.scheduledAt <= now) {
+            throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "scheduledAt must be in the future");
+        }
+
+        const payload: RideInterface = {
+            riderId: input.riderId,
+            pickupLat: input.pickupLat,
+            pickupLng: input.pickupLng,
+            dropoffLat: input.dropoffLat,
+            dropoffLng: input.dropoffLng,
+            driverId: null,
+            type: RideType.SCHEDULED,
+            status: RideStatus.REQUESTED,
+            paymentStatus: PaymentStatus.UNPAID,
+            scheduledAt: input.scheduledAt,
+        };
+
+        return this.rideRepo.create(payload);
+    }
+
+    // ========= PROCESS SCHEDULED RIDES =========
+    // Cron-like processing: assign drivers for due scheduled rides.
+    async processDueScheduledRides(): Promise<number> {
+        const now = new Date();
+        const dueRides = await this.rideRepo.findDueScheduled(now);
+
+        let processed = 0;
+        for (const ride of dueRides) {
+            await this.assignNearestDriver(ride);
+            processed++;
+        }
+
+        return processed;
+    }
+
+    // ========= OFFLINE =========
+
+    async createOfflineRide(input: OfflineRideCreateInput): Promise<Ride | null> {
+        const pairing = await this.offlinePairingRepo.findActiveByCode(input.pairingCode);
+        if (!pairing) {
+            throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "Invalid or expired offline pairing code");
+        }
+
+        const payload: RideInterface = {
+            riderId: input.riderId,
+            driverId: pairing.driverId,
+            pickupLat: input.pickupLat,
+            pickupLng: input.pickupLng,
+            dropoffLat: input.dropoffLat,
+            dropoffLng: input.dropoffLng,
+            type: RideType.OFFLINE,
+            status: RideStatus.COMPLETED, // offline rides recorded after completion
+            paymentStatus: PaymentStatus.PAID,
+        };
+
+        const created = await this.rideRepo.createOffline(payload, pairing.id!);
+        return this.rideRepo.findRideWithDetails(created.id!);
     }
 
     async getById(id: number): Promise<RideInterface> {
@@ -221,6 +309,7 @@ export class RideService implements RideServiceInterface {
 export const newRideService = async (
     rideRepo: RideRepoInterface,
     driverRepo: DriverRepoInterface,
+    offlinePairingRepo: OfflinePairingRepoInterface,
 ): Promise<RideService> => {
-    return new RideService(rideRepo, driverRepo);
+    return new RideService(rideRepo, driverRepo, offlinePairingRepo);
 };

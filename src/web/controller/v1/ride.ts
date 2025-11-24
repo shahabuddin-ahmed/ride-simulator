@@ -1,10 +1,17 @@
 import { Request, Response } from "express";
 import Joi from "joi";
 import { Controller } from "../controller";
-import { OnlineRideCreateInput, RideServiceInterface } from "../../../service/ride";
+import {
+    OfflineRideCreateInput,
+    OnlineRideCreateInput,
+    RideServiceInterface,
+    ScheduledRideCreateInput,
+} from "../../../service/ride";
 
 export interface RideControllerInterface {
     createOnlineRide(req: Request, res: Response): any;
+    createScheduledRide(req: Request, res: Response): any;
+    createOfflineRide(req: Request, res: Response): any;
     getById(req: Request, res: Response): any;
     driverAcceptRide(req: Request, res: Response): any;
     driverStartRide(req: Request, res: Response): any;
@@ -17,6 +24,8 @@ export class RideController extends Controller implements RideControllerInterfac
     constructor(private rideService: RideServiceInterface) {
         super();
         this.createOnlineRide = this.createOnlineRide.bind(this);
+        this.createScheduledRide = this.createScheduledRide.bind(this);
+        this.createOfflineRide = this.createOfflineRide.bind(this);
         this.getById = this.getById.bind(this);
         this.driverAcceptRide = this.driverAcceptRide.bind(this);
         this.driverStartRide = this.driverStartRide.bind(this);
@@ -35,6 +44,44 @@ export class RideController extends Controller implements RideControllerInterfac
 
         const { value } = await this.validateRequest(schema, req.body);
         const response = await this.rideService.createOnlineRide({ ...value, riderId: req.user!.id });
+
+        return this.sendResponse({ response }, 201, res);
+    }
+
+    async createScheduledRide(req: Request, res: Response): Promise<any> {
+        const schema = Joi.object<ScheduledRideCreateInput>({
+            pickupLat: Joi.number().required(),
+            pickupLng: Joi.number().required(),
+            dropoffLat: Joi.number().required(),
+            dropoffLng: Joi.number().required(),
+            scheduledAt: Joi.date().iso().required(),
+        });
+
+        const { value } = await this.validateRequest(schema, req.body);
+
+        const payload: ScheduledRideCreateInput = {
+            ...value,
+            riderId: req.user!.id,
+            scheduledAt: new Date(value.scheduledAt),
+        };
+
+        const response = await this.rideService.createScheduledRide(payload);
+
+        return this.sendResponse({ response }, 201, res);
+    }
+
+    async createOfflineRide(req: Request, res: Response): Promise<any> {
+        const schema = Joi.object<OfflineRideCreateInput>({
+            pairingCode: Joi.string().required(),
+            pickupLat: Joi.number().required(),
+            pickupLng: Joi.number().required(),
+            dropoffLat: Joi.number().required(),
+            dropoffLng: Joi.number().required(),
+        });
+
+        const { value } = await this.validateRequest(schema, req.body);
+
+        const response = await this.rideService.createOfflineRide({ ...value, riderId: req.user!.id });
 
         return this.sendResponse({ response }, 201, res);
     }
