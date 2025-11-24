@@ -10,6 +10,8 @@ export interface RideInterface {
     pickupLng: number;
     dropoffLat: number;
     dropoffLng: number;
+    price: number;
+    rideCode: string;
     type: RideType;
     status?: RideStatus;
     paymentStatus?: PaymentStatus;
@@ -39,6 +41,8 @@ class Ride extends Model<RideInterface, RideCreationInterface>
     public pickupLng!: number;
     public dropoffLat!: number;
     public dropoffLng!: number;
+    public price!: number;
+    public rideCode!: string;
     public type!: RideType;
     public status!: RideStatus;
     public paymentStatus!: PaymentStatus;
@@ -89,6 +93,15 @@ Ride.init(
         dropoffLng: {
             type: DataTypes.DOUBLE,
             allowNull: false,
+        },
+        price: {
+            type: DataTypes.DECIMAL(10, 2),
+            allowNull: false,
+        },
+        rideCode: {
+            type: DataTypes.STRING(20),
+            allowNull: false,
+            unique: true,
         },
         type: {
             type: DataTypes.ENUM(...Object.values(RideType)),
