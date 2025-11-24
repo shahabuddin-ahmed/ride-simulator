@@ -44,7 +44,7 @@ export class DriverRepo implements DriverRepoInterface {
         return Driver.findAll({
             where: {
                 isOnline: true,
-                // lastPingAt: { [Op.gte]: since },
+                lastPingAt: { [Op.gte]: since },
                 currentLat: { [Op.ne]: null },
                 currentLng: { [Op.ne]: null },
             },

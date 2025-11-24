@@ -11,6 +11,6 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
         code: statusCode === 500 || !err.code ? ERROR_CODES.E_INTERNAL_SERVER_ERROR : err.code,
         message: errorMessage,
         response: null,
-        errors: err.errors || [errorMessage]
+        errors: statusCode === 500 ? [errorMessage] : err.errors
     } as ResponseType);
 };
