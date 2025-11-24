@@ -8,6 +8,7 @@ export enum ERROR_CODES {
     E_CONTACT_REQUIRED = "E_CONTACT_REQUIRED",
     E_INVALID_TOKEN = "E_INVALID_TOKEN",
     E_INVALID_CREDENTIALS = "E_INVALID_CREDENTIALS",
+    E_INVALID_MOBILE_NUMBER = "E_INVALID_MOBILE_NUMBER",
 }
 
 export const errorMessages: Record<ERROR_CODES, { message: string }> = {
@@ -38,6 +39,9 @@ export const errorMessages: Record<ERROR_CODES, { message: string }> = {
     },
     E_INVALID_TOKEN: {
         message: "Invalid token"
+    },
+    E_INVALID_MOBILE_NUMBER: {
+        message: "Invalid mobile number"
     },
 };
 
