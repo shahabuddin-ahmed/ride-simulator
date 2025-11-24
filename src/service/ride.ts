@@ -8,43 +8,7 @@ import { NotFoundException } from "../web/exception/not-found-exception";
 import { BadRequestException } from "../web/exception/bad-request-exception";
 import { OfflinePairingRepoInterface } from "../repo/offline-paring";
 import config from "../config/config";
-
-export interface OnlineRideCreateInput {
-    riderId: number;
-    pickupLat: number;
-    pickupLng: number;
-    dropoffLat: number;
-    dropoffLng: number;
-}
-
-export interface ScheduledRideCreateInput extends OnlineRideCreateInput {
-    scheduledAt: Date;
-}
-
-export interface OfflineRideCreateInput {
-    riderId: number;
-    pairingCode: string;
-    pickupLat: number;
-    pickupLng: number;
-    dropoffLat: number;
-    dropoffLng: number;
-}
-
-export interface RideServiceInterface {
-    createOnlineRide(input: OnlineRideCreateInput): Promise<RideInterface | null>;
-    getById(id: number): Promise<RideInterface>;
-    driverAcceptRide(rideId: number, driverId: number): Promise<RideInterface | null>;
-    driverStartRide(rideId: number, driverId: number): Promise<RideInterface | null>;
-    driverCompleteRide(rideId: number, driverId: number): Promise<RideInterface | null>;
-    riderCancelRide(rideId: number, riderId: number): Promise<RideInterface | null>;
-    driverCancelRide(rideId: number, driverId: number): Promise<RideInterface | null>;
-    // scheduled
-    createScheduledRide(input: ScheduledRideCreateInput): Promise<RideInterface>;
-    processDueScheduledRides(): Promise<number>;
-
-    // offline
-    createOfflineRide(input: OfflineRideCreateInput): Promise<RideInterface | null>;
-}
+import { OfflineRideCreateInput, OnlineRideCreateInput, RideServiceInterface, ScheduledRideCreateInput } from "./types";
 
 export class RideService implements RideServiceInterface {
     constructor(private rideRepo: RideRepoInterface, private driverRepo: DriverRepoInterface, private offlinePairingRepo: OfflinePairingRepoInterface) {

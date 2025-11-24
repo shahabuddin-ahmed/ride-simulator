@@ -9,53 +9,16 @@ import { NotFoundException } from "../web/exception/not-found-exception";
 import { verifyDriverOtpToken } from "../utils/otp";
 import { generateDriverOtpToken } from "../utils/otp";
 import { DriverInterface } from "../model/driver";
+import {
+    AuthServiceInterface,
+    DriverOtpRequestInput,
+    DriverOtpVerifyInput,
+    DriverRegisterInput,
+    RiderLoginInput,
+    RiderRegisterInput,
+} from "./types";
 
 const BCRYPT_ROUNDS = 10;
-
-export interface RiderRegisterInput {
-    fristName: string | null;
-    lastName: string | null;
-    mobile: string;
-    email: string | null;
-    password: string;
-}
-
-export interface RiderLoginInput {
-    mobile?: string;
-    email?: string;
-    password: string;
-}
-
-export interface DriverOtpRequestInput {
-    mobile: string;
-}
-
-export interface DriverOtpVerifyInput {
-    mobile: string;
-    code: string;
-    otpToken: string;
-}
-
-export interface DriverRegisterInput {
-    mobile: string;
-    email?: string | null;
-    fristName?: string | null;
-    lastName?: string | null;
-}
-
-export interface AuthServiceInterface {
-    riderRegister(input: RiderRegisterInput): Promise<UserInterface>;
-    riderLogin(input: RiderLoginInput): Promise<{
-        accessToken: string;
-        user: UserInterface;
-    }>;
-    driverRegister(input: DriverRegisterInput): Promise<UserInterface>;
-    requestDriverOtp(input: DriverOtpRequestInput): Promise<{ otpToken: string }>;
-    verifyDriverOtp(input: DriverOtpVerifyInput): Promise<{
-        accessToken: string;
-        user: Omit<UserInterface, "password">;
-    }>;
-}
 
 export class AuthService implements AuthServiceInterface {
     constructor(private userRepo: UserRepoInterface) {

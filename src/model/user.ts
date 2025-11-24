@@ -55,7 +55,6 @@ User.init(
         email: {
             type: DataTypes.STRING(100),
             allowNull: true,
-            unique: true,
         },
         type: {
             type: DataTypes.ENUM(...Object.values(UserType)),
