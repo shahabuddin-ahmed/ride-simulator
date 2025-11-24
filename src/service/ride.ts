@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import { ERROR_CODES } from "../constant/error";
 import { PaymentStatus, RideStatus, RideType } from "../constant/common";
 import Ride, { RideInterface } from "../model/ride";
@@ -6,9 +7,7 @@ import { DriverRepoInterface } from "../repo/driver";
 import { NotFoundException } from "../web/exception/not-found-exception";
 import { BadRequestException } from "../web/exception/bad-request-exception";
 import { OfflinePairingRepoInterface } from "../repo/offline-paring";
-
-const NEARBY_RADIUS_KM = 2; // how far we consider a driver "nearby"
-const DRIVER_LOCATION_FRESH_MINUTES = 3; // how fresh the driver's lastPingAt must be
+import config from "../config/config";
 
 export interface OnlineRideCreateInput {
     riderId: number;
@@ -56,6 +55,8 @@ export class RideService implements RideServiceInterface {
 
     // ========= ONLINE =========
     async createOnlineRide(input: OnlineRideCreateInput): Promise<RideInterface | null> {
+        const price = this.calculatePrice(input.pickupLat, input.pickupLng, input.dropoffLat, input.dropoffLng);
+
         const payload: RideInterface = {
             riderId: input.riderId,
             driverId: null,
@@ -63,6 +64,8 @@ export class RideService implements RideServiceInterface {
             pickupLng: input.pickupLng,
             dropoffLat: input.dropoffLat,
             dropoffLng: input.dropoffLng,
+            price,
+            rideCode: this.generateRideCode(),
             type: RideType.ONLINE,
             status: RideStatus.REQUESTED,
             paymentStatus: PaymentStatus.UNPAID,
@@ -82,6 +85,8 @@ export class RideService implements RideServiceInterface {
             throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "scheduledAt must be in the future");
         }
 
+        const price = this.calculatePrice(input.pickupLat, input.pickupLng, input.dropoffLat, input.dropoffLng);
+
         const payload: RideInterface = {
             riderId: input.riderId,
             pickupLat: input.pickupLat,
@@ -89,6 +94,8 @@ export class RideService implements RideServiceInterface {
             dropoffLat: input.dropoffLat,
             dropoffLng: input.dropoffLng,
             driverId: null,
+            price,
+            rideCode: this.generateRideCode(),
             type: RideType.SCHEDULED,
             status: RideStatus.REQUESTED,
             paymentStatus: PaymentStatus.UNPAID,
@@ -121,6 +128,8 @@ export class RideService implements RideServiceInterface {
             throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "Invalid or expired offline pairing code");
         }
 
+        const price = this.calculatePrice(input.pickupLat, input.pickupLng, input.dropoffLat, input.dropoffLng);
+
         const payload: RideInterface = {
             riderId: input.riderId,
             driverId: pairing.driverId,
@@ -128,6 +137,8 @@ export class RideService implements RideServiceInterface {
             pickupLng: input.pickupLng,
             dropoffLat: input.dropoffLat,
             dropoffLng: input.dropoffLng,
+            price,
+            rideCode: this.generateRideCode(),
             type: RideType.OFFLINE,
             status: RideStatus.COMPLETED, // offline rides recorded after completion
             paymentStatus: PaymentStatus.PAID,
@@ -150,7 +161,7 @@ export class RideService implements RideServiceInterface {
      * All DB fetches go through repos.
      */
     private async assignNearestDriver(ride: RideInterface): Promise<RideInterface | null> {
-        const freshSince = new Date(Date.now() - DRIVER_LOCATION_FRESH_MINUTES * 60 * 1000);
+        const freshSince = new Date(Date.now() - config.RIDE_ASSIGNMENT.DRIVER_LOCATION_FRESH_MINUTES * 60 * 1000);
 
         const drivers = await this.driverRepo.findFreshOnlineDriversWithLocation(freshSince);
 
@@ -172,7 +183,7 @@ export class RideService implements RideServiceInterface {
                 );
                 return { driver, distanceKm };
             })
-            .filter((item) => item.distanceKm <= NEARBY_RADIUS_KM)
+            .filter((item) => item.distanceKm <= config.RIDE_ASSIGNMENT.NEARBY_RADIUS_KM)
             .sort((a, b) => a.distanceKm - b.distanceKm);
 
         if (!candidates.length) {
@@ -220,6 +231,18 @@ export class RideService implements RideServiceInterface {
             throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "Operation allowed only for online rides");
         }
         return ride as unknown as RideInterface;
+    }
+
+    private calculatePrice(pickupLat: number, pickupLng: number, dropoffLat: number, dropoffLng: number): number {
+        const distanceKm = this.calculateDistanceKm(pickupLat, pickupLng, dropoffLat, dropoffLng);
+        const raw = config.RIDE_PRICING.BASE_FARE + distanceKm * config.RIDE_PRICING.PER_KM_RATE;
+        return Number(Math.max(raw, config.RIDE_PRICING.MIN_FARE).toFixed(2));
+    }
+
+    private generateRideCode(): string {
+        const random = randomBytes(3).toString("hex").toUpperCase(); // 6 chars
+        const time = Date.now().toString(36).toUpperCase();
+        return `${time}${random}`;
     }
 
     private ensureDriver(ride: RideInterface, driverId: number): void {

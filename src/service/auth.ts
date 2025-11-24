@@ -44,12 +44,12 @@ export interface DriverRegisterInput {
 }
 
 export interface AuthServiceInterface {
-    riderRegister(input: RiderRegisterInput): Promise<Omit<UserInterface, "password">>;
+    riderRegister(input: RiderRegisterInput): Promise<UserInterface>;
     riderLogin(input: RiderLoginInput): Promise<{
         accessToken: string;
-        user: Omit<UserInterface, "password">;
+        user: UserInterface;
     }>;
-    driverRegister(input: DriverRegisterInput): Promise<Omit<UserInterface, "password">>;
+    driverRegister(input: DriverRegisterInput): Promise<UserInterface>;
     requestDriverOtp(input: DriverOtpRequestInput): Promise<{ otpToken: string }>;
     verifyDriverOtp(input: DriverOtpVerifyInput): Promise<{
         accessToken: string;
@@ -62,7 +62,7 @@ export class AuthService implements AuthServiceInterface {
         this.userRepo = userRepo;
     }
 
-    async riderRegister(input: RiderRegisterInput): Promise<Omit<UserInterface, "password">> {
+    async riderRegister(input: RiderRegisterInput): Promise<UserInterface> {
         const exists = await this.userRepo.findByEmailOrPhone(
             { email: input.email ?? undefined, mobile: input.mobile },
             UserType.RIDER,
@@ -89,7 +89,7 @@ export class AuthService implements AuthServiceInterface {
         return this.sanitizeUser(created.dataValues);
     }
 
-    async riderLogin(input: RiderLoginInput): Promise<{ accessToken: string; user: Omit<UserInterface, "password"> }> {
+    async riderLogin(input: RiderLoginInput): Promise<{ accessToken: string; user: UserInterface }> {
         const user = await this.userRepo.findByEmailOrPhone(input, UserType.RIDER);
 
         if (!user) {
@@ -109,7 +109,7 @@ export class AuthService implements AuthServiceInterface {
         return { accessToken, user: this.sanitizeUser(user.dataValues) };
     }
 
-    async driverRegister(input: DriverRegisterInput): Promise<Omit<UserInterface, "password">> {
+    async driverRegister(input: DriverRegisterInput): Promise<UserInterface> {
         const exists = await this.userRepo.findByEmailOrPhone(
             { email: input.email ?? undefined, mobile: input.mobile },
             UserType.DRIVER,

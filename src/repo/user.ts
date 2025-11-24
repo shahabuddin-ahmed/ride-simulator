@@ -43,7 +43,7 @@ export class UserRepo implements UserRepoInterface {
     }
 
     public async findByPhone(mobile: string, type: UserType): Promise<User | null> {
-        return User.findOne({ where: { mobile, isActive: true, type } });
+        return User.findOne({ where: { mobile, isActive: true, type }, attributes: { exclude: ["password"] } });
     }
 
     registerDriver(user: UserInterface, driver: DriverInterface): Promise<User> {
