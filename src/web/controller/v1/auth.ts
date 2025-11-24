@@ -30,7 +30,7 @@ export class AuthController extends Controller implements AuthControllerInterfac
 
     async riderRegister(req: Request, res: Response): Promise<any> {
         const schema = Joi.object<RiderRegisterInput>({
-            fistName: Joi.string().trim().optional().allow(null, "").default(""),
+            fristName: Joi.string().trim().optional().allow(null, "").default(""),
             lastName: Joi.string().trim().optional().allow(null, "").default(""),
             mobile: Joi.string().trim().required(),
             email: Joi.string().email().trim().lowercase().optional().allow(null, "").default(""),
@@ -60,7 +60,7 @@ export class AuthController extends Controller implements AuthControllerInterfac
 
     async driverRegister(req: Request, res: Response): Promise<any> {
         const schema = Joi.object<DriverRegisterInput>({
-            fistName: Joi.string().trim().optional().allow(null, "").default(""),
+            fristName: Joi.string().trim().optional().allow(null, "").default(""),
             lastName: Joi.string().trim().optional().allow(null, "").default(""),
             mobile: Joi.string().trim().required(),
             email: Joi.string().email().trim().lowercase().optional().allow(null, "").default(""),

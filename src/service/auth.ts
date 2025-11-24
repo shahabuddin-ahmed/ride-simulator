@@ -13,7 +13,7 @@ import { DriverInterface } from "../model/driver";
 const BCRYPT_ROUNDS = 10;
 
 export interface RiderRegisterInput {
-    fistName: string | null;
+    fristName: string | null;
     lastName: string | null;
     mobile: string;
     email: string | null;
@@ -39,7 +39,7 @@ export interface DriverOtpVerifyInput {
 export interface DriverRegisterInput {
     mobile: string;
     email?: string | null;
-    fistName?: string | null;
+    fristName?: string | null;
     lastName?: string | null;
 }
 
@@ -75,7 +75,7 @@ export class AuthService implements AuthServiceInterface {
         const password = await bcrypt.hash(input.password, BCRYPT_ROUNDS);
 
         const user: UserInterface & { password?: string | null } = {
-            fistName: input.fistName,
+            fristName: input.fristName,
             lastName: input.lastName,
             mobile: input.mobile,
             email: input.email ?? null,
@@ -109,9 +109,7 @@ export class AuthService implements AuthServiceInterface {
         return { accessToken, user: this.sanitizeUser(user.dataValues) };
     }
 
-    async driverRegister(
-        input: DriverRegisterInput,
-    ): Promise<Omit<UserInterface, "password">> {
+    async driverRegister(input: DriverRegisterInput): Promise<Omit<UserInterface, "password">> {
         const exists = await this.userRepo.findByEmailOrPhone(
             { email: input.email ?? undefined, mobile: input.mobile },
             UserType.DRIVER,
@@ -125,7 +123,7 @@ export class AuthService implements AuthServiceInterface {
 
         // Create user row with type DRIVER (no passwordHash)
         const user: UserInterface & { password?: string | null } = {
-            fistName: input.fistName || null,
+            fristName: input.fristName || null,
             lastName: input.lastName || null,
             mobile: input.mobile,
             email: input.email ?? null,
