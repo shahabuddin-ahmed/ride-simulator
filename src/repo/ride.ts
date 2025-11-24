@@ -45,11 +45,13 @@ export class RideRepo implements RideRepoInterface {
                     model: User,
                     as: "driver",
                     required: false,
+                    attributes: { exclude: ["password"] },
                 },
                 {
                     model: User,
                     as: "rider",
                     required: false,
+                    attributes: { exclude: ["password"] },
                 },
             ],
         });
