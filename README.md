@@ -139,6 +139,14 @@ yarn test --runInBand
 ```
 Coverage artifacts are emitted under `coverage/`.
 
+## Postman Collection
+
+- Import `assets/ride-simulator.postman_collection.json` and `assets/ride-simulator.postman_environment.json` into Postman.
+- Set environment values:
+  - `HOST` → your API base URL (e.g. `http://localhost:3000/api/v1`).
+  - `rider-access-token` / `driver-access-token` → fill after logging in to hit protected routes.
+- Collection includes driver register/OTP/login and rider auth flows with example payloads.
+
 ## Useful Scripts
 | Command | Description |
 | --- | --- |
