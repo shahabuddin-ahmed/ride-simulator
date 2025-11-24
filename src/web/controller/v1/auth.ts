@@ -8,7 +8,7 @@ import {
     DriverOtpRequestInput,
     DriverOtpVerifyInput,
     DriverRegisterInput,
-} from "../../../service/auth";
+} from "../../../service/types";
 
 export interface AuthControllerInterface {
     riderRegister(req: Request, res: Response): any;

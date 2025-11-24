@@ -6,7 +6,7 @@ import {
     OnlineRideCreateInput,
     RideServiceInterface,
     ScheduledRideCreateInput,
-} from "../../../service/ride";
+} from "../../../service/types";
 
 export interface RideControllerInterface {
     createOnlineRide(req: Request, res: Response): any;

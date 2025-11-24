@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Joi from "joi";
 import { Controller } from "../controller";
-import { DriverServiceInterface } from "../../../service/driver";
+import { DriverServiceInterface } from "../../../service/types";
 
 export interface DriverControllerInterface {
     updateStatus(req: Request, res: Response): any;
