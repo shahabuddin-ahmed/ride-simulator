@@ -9,6 +9,7 @@ import { NotFoundException } from "../web/exception/not-found-exception";
 import { verifyDriverOtpToken } from "../utils/otp";
 import { generateDriverOtpToken } from "../utils/otp";
 import { DriverInterface } from "../model/driver";
+import { normalizeMobile } from "../utils/mobile";
 import {
     AuthServiceInterface,
     DriverOtpRequestInput,
@@ -26,8 +27,9 @@ export class AuthService implements AuthServiceInterface {
     }
 
     async riderRegister(input: RiderRegisterInput): Promise<UserInterface> {
+        const normalizedMobile = input.mobile ? normalizeMobile(input.mobile) : "";
         const exists = await this.userRepo.findByEmailOrPhone(
-            { email: input.email ?? undefined, mobile: input.mobile },
+            { email: input.email ?? undefined, mobile: normalizedMobile },
             UserType.RIDER,
         );
 
@@ -40,7 +42,7 @@ export class AuthService implements AuthServiceInterface {
         const user: UserInterface & { password?: string | null } = {
             fristName: input.fristName,
             lastName: input.lastName,
-            mobile: input.mobile,
+            mobile: normalizedMobile,
             email: input.email ?? null,
             type: UserType.RIDER,
             isActive: true,
@@ -53,7 +55,13 @@ export class AuthService implements AuthServiceInterface {
     }
 
     async riderLogin(input: RiderLoginInput): Promise<{ accessToken: string; user: UserInterface }> {
-        const user = await this.userRepo.findByEmailOrPhone(input, UserType.RIDER);
+        const user = await this.userRepo.findByEmailOrPhone(
+            {
+                email: input.email ?? undefined,
+                mobile: input.mobile ? normalizeMobile(input.mobile) : undefined,
+            },
+            UserType.RIDER,
+        );
 
         if (!user) {
             throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "Invalid credentials");
@@ -73,8 +81,9 @@ export class AuthService implements AuthServiceInterface {
     }
 
     async driverRegister(input: DriverRegisterInput): Promise<UserInterface> {
+        const normalizedMobile = normalizeMobile(input.mobile);
         const exists = await this.userRepo.findByEmailOrPhone(
-            { email: input.email ?? undefined, mobile: input.mobile },
+            { email: input.email ?? undefined, mobile: normalizedMobile },
             UserType.DRIVER,
         );
 
@@ -88,7 +97,7 @@ export class AuthService implements AuthServiceInterface {
         const user: UserInterface & { password?: string | null } = {
             fristName: input.fristName || null,
             lastName: input.lastName || null,
-            mobile: input.mobile,
+            mobile: normalizedMobile,
             email: input.email ?? null,
             type: UserType.DRIVER,
             isActive: true,
@@ -109,15 +118,16 @@ export class AuthService implements AuthServiceInterface {
     }
 
     async requestDriverOtp(input: DriverOtpRequestInput): Promise<{ otpToken: string }> {
-        const user = await this.userRepo.findByPhone(input.mobile, UserType.DRIVER);
+        const normalizedMobile = normalizeMobile(input.mobile);
+        const user = await this.userRepo.findByPhone(normalizedMobile, UserType.DRIVER);
         if (!user) {
             throw new NotFoundException(ERROR_CODES.E_PAGE_NOT_FOUND, "Driver not found");
         }
 
-        const { code, token } = generateDriverOtpToken(input.mobile);
+        const { code, token } = generateDriverOtpToken(normalizedMobile);
 
         // In real life: send `code` via SMS
-        console.log(`Driver OTP for ${input.mobile}: ${code}`);
+        console.log(`Driver OTP for ${normalizedMobile}: ${code}`);
 
         // We return token to FE; FE stores it (hidden) and sends it back on verify.
         return { otpToken: token };
@@ -127,12 +137,13 @@ export class AuthService implements AuthServiceInterface {
         accessToken: string;
         user: UserInterface & { password?: string | null };
     }> {
-        const user = await this.userRepo.findByPhone(input.mobile, UserType.DRIVER);
+        const normalizedMobile = normalizeMobile(input.mobile);
+        const user = await this.userRepo.findByPhone(normalizedMobile, UserType.DRIVER);
         if (!user) {
             throw new NotFoundException(ERROR_CODES.E_PAGE_NOT_FOUND, "Driver not found");
         }
 
-        const ok = verifyDriverOtpToken(input.otpToken, input.code, input.mobile);
+        const ok = verifyDriverOtpToken(input.otpToken, input.code, normalizedMobile);
         if (!ok) {
             throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "Invalid or expired OTP");
         }
