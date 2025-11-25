@@ -1,5 +1,5 @@
 import { DriverInterface } from "../../model/driver";
-import { OfflinePairingInterface } from "../../model/offline-pairing";
+import { OfflinePairingInterface } from "../../model/offline-paring";
 
 export interface UpdateDriverStatusInput {
     userId: number; // from JWT

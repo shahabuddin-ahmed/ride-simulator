@@ -3,7 +3,7 @@ import { DriverRepoInterface } from "../repo/driver";
 import { ERROR_CODES } from "../constant/error";
 import { NotFoundException } from "../web/exception/not-found-exception";
 import { BadRequestException } from "../web/exception/bad-request-exception";
-import { OfflinePairingInterface } from "../model/offline-pairing";
+import { OfflinePairingInterface } from "../model/offline-paring";
 import { OfflinePairingRepoInterface } from "../repo/offline-paring";
 import { OfflinePairingStatus } from "../constant/common";
 import { generateCode } from "../utils/otp";

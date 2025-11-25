@@ -1,5 +1,5 @@
 import { Op, Transaction } from "sequelize";
-import OfflinePairing, { OfflinePairingInterface } from "../model/offline-pairing";
+import OfflinePairing, { OfflinePairingInterface } from "../model/offline-paring";
 import { OfflinePairingStatus } from "../constant/common";
 import UserRepo from "./user";
 

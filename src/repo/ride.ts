@@ -3,7 +3,7 @@ import Ride, { RideInterface } from "../model/ride";
 import User from "../model/user";
 import { OfflinePairingStatus, RideStatus, RideType } from "../constant/common";
 import UserRepo from "./user";
-import OfflinePairing from "../model/offline-pairing";
+import OfflinePairing from "../model/offline-paring";
 
 export interface RideRepoInterface {
     create(ride: RideInterface): Promise<Ride>;

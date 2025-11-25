@@ -1,7 +1,7 @@
 import User from "./user";
 import Driver from "./driver";
 import Ride from "./ride";
-import OfflinePairing from "./offline-pairing";
+import OfflinePairing from "./offline-paring";
 
 // USER ↔ DRIVER
 User.hasOne(Driver, {
