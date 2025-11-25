@@ -3,9 +3,9 @@ import { DriverRepoInterface } from "../repo/driver";
 import { ERROR_CODES } from "../constant/error";
 import { NotFoundException } from "../web/exception/not-found-exception";
 import { BadRequestException } from "../web/exception/bad-request-exception";
-import { OfflinePairingInterface } from "../model/offline-pairing";
-import { OfflinePairingRepoInterface } from "../repo/offline-paring";
-import { OfflinePairingStatus } from "../constant/common";
+import { OfflineParingInterface } from "../model/offline-paring";
+import { OfflineParingRepoInterface } from "../repo/offline-paring";
+import { OfflineParingStatus } from "../constant/common";
 import { generateCode } from "../utils/otp";
 import config from "../config/config";
 import { UpdateDriverLocationInput, UpdateDriverStatusInput } from "./types";
@@ -13,12 +13,12 @@ import { UpdateDriverLocationInput, UpdateDriverStatusInput } from "./types";
 export interface DriverServiceInterface {
     updateStatus(input: UpdateDriverStatusInput): Promise<DriverInterface>;
     updateLocation(input: UpdateDriverLocationInput): Promise<DriverInterface>;
-    generateOfflinePairing(userId: number): Promise<OfflinePairingInterface>;
+    generateOfflineParing(userId: number): Promise<OfflineParingInterface>;
 }
 export class DriverService implements DriverServiceInterface {
-    constructor(private driverRepo: DriverRepoInterface, private offlinePairingRepo: OfflinePairingRepoInterface) {
+    constructor(private driverRepo: DriverRepoInterface, private offlineParingRepo: OfflineParingRepoInterface) {
         this.driverRepo = driverRepo;
-        this.offlinePairingRepo = offlinePairingRepo;
+        this.offlineParingRepo = offlineParingRepo;
     }
 
     async updateStatus(input: UpdateDriverStatusInput): Promise<DriverInterface> {
@@ -45,27 +45,27 @@ export class DriverService implements DriverServiceInterface {
         return driver;
     }
 
-    async generateOfflinePairing(userId: number): Promise<OfflinePairingInterface> {
+    async generateOfflineParing(userId: number): Promise<OfflineParingInterface> {
         const now = new Date();
-        await this.offlinePairingRepo.expireOld(now);
+        await this.offlineParingRepo.expireOld(now);
 
         const code = generateCode();
         const expiresAt = new Date(now.getTime() + config.OTP_EXPIRY_MINUTES * 60 * 1000);
 
-        const pairing: OfflinePairingInterface = {
+        const paring: OfflineParingInterface = {
             driverId: userId, // note: references users.id
             code,
-            status: OfflinePairingStatus.ACTIVE,
+            status: OfflineParingStatus.ACTIVE,
             expiresAt,
         };
 
-        return this.offlinePairingRepo.create(pairing);
+        return this.offlineParingRepo.create(paring);
     }
 }
 
 export const newDriverService = async (
     driverRepo: DriverRepoInterface,
-    offlinePairingRepo: OfflinePairingRepoInterface,
+    offlineParingRepo: OfflineParingRepoInterface,
 ): Promise<DriverService> => {
-    return new DriverService(driverRepo, offlinePairingRepo);
+    return new DriverService(driverRepo, offlineParingRepo);
 };
