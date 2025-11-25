@@ -1,9 +1,9 @@
 import { Op } from "sequelize";
 import { RideRepo } from "../../../src/repo/ride";
 import Ride from "../../../src/model/ride";
-import OfflinePairing from "../../../src/model/offline-paring";
+import OfflineParing from "../../../src/model/offline-paring";
 import UserRepo from "../../../src/repo/user";
-import { OfflinePairingStatus, RideStatus, RideType } from "../../../src/constant/common";
+import { OfflineParingStatus, RideStatus, RideType } from "../../../src/constant/common";
 
 jest.mock("../../../src/model/ride");
 jest.mock("../../../src/model/offline-paring");
@@ -64,19 +64,19 @@ describe("RideRepo", () => {
         expect(result).toBe(ride);
     });
 
-    it("creates offline ride and marks pairing as used in one transaction", async () => {
+    it("creates offline ride and marks paring as used in one transaction", async () => {
         const payload: any = { riderId: 1, driverId: 2 };
         const transaction = { id: "tx" };
         (Ride.create as jest.Mock).mockResolvedValue({ id: 3 });
-        (OfflinePairing.update as jest.Mock).mockResolvedValue([1]);
+        (OfflineParing.update as jest.Mock).mockResolvedValue([1]);
         jest.spyOn(UserRepo, "withTransaction").mockImplementation(async (fn: any) => fn(transaction));
 
         const result = await repo.createOffline(payload, 9);
 
         expect(UserRepo.withTransaction).toHaveBeenCalled();
         expect(Ride.create).toHaveBeenCalledWith(payload, { transaction });
-        expect(OfflinePairing.update).toHaveBeenCalledWith(
-            { status: OfflinePairingStatus.USED },
+        expect(OfflineParing.update).toHaveBeenCalledWith(
+            { status: OfflineParingStatus.USED },
             { where: { id: 9 }, transaction },
         );
         expect(result).toEqual({ id: 3 });

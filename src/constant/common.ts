@@ -37,7 +37,7 @@ export enum RideStatus {
     NO_DRIVER = "no_driver",
 }
 
-export enum OfflinePairingStatus {
+export enum OfflineParingStatus {
     ACTIVE = "active",
     USED = "used",
     EXPIRED = "expired",

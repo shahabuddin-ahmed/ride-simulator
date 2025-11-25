@@ -1,36 +1,33 @@
 import { Model, DataTypes, Optional } from "sequelize";
-import { OfflinePairingStatus } from "../constant/common";
+import { OfflineParingStatus } from "../constant/common";
 import newSequelize from "../infra/sequelize";
 
-export interface OfflinePairingInterface {
+export interface OfflineParingInterface {
     id?: number;
     driverId: number;
     code: string;
-    status?: OfflinePairingStatus;
+    status?: OfflineParingStatus;
     expiresAt: Date;
     createdAt?: Date;
     updatedAt?: Date;
 }
 
-type OfflinePairingCreationInterface = Optional<
-    OfflinePairingInterface,
-    "id" | "status" | "createdAt" | "updatedAt"
->;
+type OfflineParingCreationInterface = Optional<OfflineParingInterface, "id" | "status" | "createdAt" | "updatedAt">;
 
-class OfflinePairing
-    extends Model<OfflinePairingInterface, OfflinePairingCreationInterface>
-    implements OfflinePairingInterface
+class OfflineParing
+    extends Model<OfflineParingInterface, OfflineParingCreationInterface>
+    implements OfflineParingInterface
 {
     public id!: number;
     public driverId!: number;
     public code!: string;
-    public status!: OfflinePairingStatus;
+    public status!: OfflineParingStatus;
     public expiresAt!: Date;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 }
 
-OfflinePairing.init(
+OfflineParing.init(
     {
         id: {
             type: DataTypes.INTEGER.UNSIGNED,
@@ -52,9 +49,9 @@ OfflinePairing.init(
             allowNull: false,
         },
         status: {
-            type: DataTypes.ENUM(...Object.values(OfflinePairingStatus)),
+            type: DataTypes.ENUM(...Object.values(OfflineParingStatus)),
             allowNull: false,
-            defaultValue: OfflinePairingStatus.ACTIVE,
+            defaultValue: OfflineParingStatus.ACTIVE,
         },
         expiresAt: {
             type: DataTypes.DATE,
@@ -68,7 +65,7 @@ OfflinePairing.init(
         underscored: false,
         sequelize: newSequelize(),
         modelName: "offline_pairing",
-    }
+    },
 );
 
-export default OfflinePairing;
+export default OfflineParing;

@@ -1,591 +1,497 @@
 {
-	"info": {
-		"_postman_id": "04facd2a-4edb-4d29-af00-baeef72b5d0b",
-		"name": "ride simulator",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "4260827",
-		"_collection_link": "https://gold-crescent-976410.postman.co/workspace/c8286293-392f-4c44-8e7a-c81b21e9e1de/collection/4260827-04facd2a-4edb-4d29-af00-baeef72b5d0b?action=share&source=collection_link&creator=4260827"
-	},
-	"item": [
-		{
-			"name": "driver",
-			"item": [
-				{
-					"name": "register",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"mobile\": \"01701045678\",\n    \"fristName\": \"Driver\",\n    \"lastName\": \"One\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/auth/driver/register",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"auth",
-								"driver",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "request otp",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"mobile\": \"01701045678\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/auth/driver/otp/request",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"auth",
-								"driver",
-								"otp",
-								"request"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "verify otp",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"mobile\": \"01701045678\",\n    \"code\": \"526774\",\n    \"otpToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiIrODgwMTcwMTA0NTY3OCIsIm90cEhhc2giOiI0MDBiYTg5YjI2MmM4Mjg5ZjQ2NTZmZjJiZjIzMmY0NjllOGYxMzMxMzNlOWFiODg5NWNiNWMwZjZiYmFmYzFlIiwidHlwZSI6ImRyaXZlciIsImlhdCI6MTc2NDAxODEyMSwiZXhwIjoxNzY0MDE4NDIxfQ.KXbu8w0VGoNuoGuZKkCAl_Rq3p7ulfUtPS2bU-NgjUI\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/auth/driver/otp/verify",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"auth",
-								"driver",
-								"otp",
-								"verify"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "update status",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{driver-access-token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"isOnline\": true\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/driver/status",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"driver",
-								"status"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "update location",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{driver-access-token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"lat\": 23.822132620443703,\n    \"lng\": 90.4320501197728\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/driver/location",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"driver",
-								"location"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "accept ride",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{driver-access-token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/ride/15/accept",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"ride",
-								"15",
-								"accept"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "ride start",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{driver-access-token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/ride/15/start",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"ride",
-								"15",
-								"start"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "complete ride",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{driver-access-token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/ride/15/complete",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"ride",
-								"15",
-								"complete"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "ride cancel",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{driver-access-token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/ride/15/cancel/driver",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"ride",
-								"15",
-								"cancel",
-								"driver"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "offline ride",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{driver-access-token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/driver/offline-pairing",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"driver",
-								"offline-pairing"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "rider",
-			"item": [
-				{
-					"name": "register",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"mobile\": \"01701045679\",\n    \"fristName\": \"Shahabuddin\",\n    \"lastName\": \"Ahmed\",\n    \"email\": \"shahabuddin@gmail.com\",\n    \"password\": \"0987654321\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/auth/rider/register",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"auth",
-								"rider",
-								"register"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "login",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"mobile\": \"01701045679\",\n    \"password\": \"0987654321\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/auth/rider/login",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"auth",
-								"rider",
-								"login"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "ride",
-			"item": [
-				{
-					"name": "online ride",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{rider-access-token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"pickupLat\": 23.814476867113083,\n    \"pickupLng\": 90.43857325209895,\n    \"dropoffLat\": 23.820051870636853,\n    \"dropoffLng\": 90.4450963844251\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/ride/online",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"ride",
-								"online"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "offline ride",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{rider-access-token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"pairingCode\": \"118657\",\n    \"pickupLat\": 23.814476867113083,\n    \"pickupLng\": 90.43857325209895,\n    \"dropoffLat\": 23.820051870636853,\n    \"dropoffLng\": 90.4450963844251\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/ride/offline",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"ride",
-								"offline"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "schedule ride",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{rider-access-token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"scheduledAt\": \"2025-11-27T06:19:51\",\n    \"pickupLat\": 23.814476867113083,\n    \"pickupLng\": 90.43857325209895,\n    \"dropoffLat\": 23.820051870636853,\n    \"dropoffLng\": 90.4450963844251\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/ride/scheduled",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"ride",
-								"scheduled"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "ride cancel",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{rider-access-token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{HOST}}/ride/15/cancel/rider",
-							"host": [
-								"{{HOST}}"
-							],
-							"path": [
-								"ride",
-								"15",
-								"cancel",
-								"rider"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		}
-	]
+    "info": {
+        "_postman_id": "04facd2a-4edb-4d29-af00-baeef72b5d0b",
+        "name": "ride simulator",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "4260827",
+        "_collection_link": "https://gold-crescent-976410.postman.co/workspace/c8286293-392f-4c44-8e7a-c81b21e9e1de/collection/4260827-04facd2a-4edb-4d29-af00-baeef72b5d0b?action=share&source=collection_link&creator=4260827"
+    },
+    "item": [
+        {
+            "name": "driver",
+            "item": [
+                {
+                    "name": "register",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"mobile\": \"01701045678\",\n    \"fristName\": \"Driver\",\n    \"lastName\": \"One\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/auth/driver/register",
+                            "host": ["{{HOST}}"],
+                            "path": ["auth", "driver", "register"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "request otp",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"mobile\": \"01701045678\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/auth/driver/otp/request",
+                            "host": ["{{HOST}}"],
+                            "path": ["auth", "driver", "otp", "request"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "verify otp",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"mobile\": \"01701045678\",\n    \"code\": \"526774\",\n    \"otpToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJtb2JpbGUiOiIrODgwMTcwMTA0NTY3OCIsIm90cEhhc2giOiI0MDBiYTg5YjI2MmM4Mjg5ZjQ2NTZmZjJiZjIzMmY0NjllOGYxMzMxMzNlOWFiODg5NWNiNWMwZjZiYmFmYzFlIiwidHlwZSI6ImRyaXZlciIsImlhdCI6MTc2NDAxODEyMSwiZXhwIjoxNzY0MDE4NDIxfQ.KXbu8w0VGoNuoGuZKkCAl_Rq3p7ulfUtPS2bU-NgjUI\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/auth/driver/otp/verify",
+                            "host": ["{{HOST}}"],
+                            "path": ["auth", "driver", "otp", "verify"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "update status",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{driver-access-token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"isOnline\": true\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/driver/status",
+                            "host": ["{{HOST}}"],
+                            "path": ["driver", "status"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "update location",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{driver-access-token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "PATCH",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"lat\": 23.822132620443703,\n    \"lng\": 90.4320501197728\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/driver/location",
+                            "host": ["{{HOST}}"],
+                            "path": ["driver", "location"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "accept ride",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{driver-access-token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/ride/15/accept",
+                            "host": ["{{HOST}}"],
+                            "path": ["ride", "15", "accept"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "ride start",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{driver-access-token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/ride/15/start",
+                            "host": ["{{HOST}}"],
+                            "path": ["ride", "15", "start"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "complete ride",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{driver-access-token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/ride/15/complete",
+                            "host": ["{{HOST}}"],
+                            "path": ["ride", "15", "complete"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "ride cancel",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{driver-access-token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/ride/15/cancel/driver",
+                            "host": ["{{HOST}}"],
+                            "path": ["ride", "15", "cancel", "driver"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "offline ride",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{driver-access-token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/driver/offline-paring",
+                            "host": ["{{HOST}}"],
+                            "path": ["driver", "offline-paring"]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "rider",
+            "item": [
+                {
+                    "name": "register",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"mobile\": \"01701045679\",\n    \"fristName\": \"Shahabuddin\",\n    \"lastName\": \"Ahmed\",\n    \"email\": \"shahabuddin@gmail.com\",\n    \"password\": \"0987654321\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/auth/rider/register",
+                            "host": ["{{HOST}}"],
+                            "path": ["auth", "rider", "register"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "login",
+                    "request": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"mobile\": \"01701045679\",\n    \"password\": \"0987654321\"\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/auth/rider/login",
+                            "host": ["{{HOST}}"],
+                            "path": ["auth", "rider", "login"]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "ride",
+            "item": [
+                {
+                    "name": "online ride",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{rider-access-token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"pickupLat\": 23.814476867113083,\n    \"pickupLng\": 90.43857325209895,\n    \"dropoffLat\": 23.820051870636853,\n    \"dropoffLng\": 90.4450963844251\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/ride/online",
+                            "host": ["{{HOST}}"],
+                            "path": ["ride", "online"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "offline ride",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{rider-access-token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"pairingCode\": \"118657\",\n    \"pickupLat\": 23.814476867113083,\n    \"pickupLng\": 90.43857325209895,\n    \"dropoffLat\": 23.820051870636853,\n    \"dropoffLng\": 90.4450963844251\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/ride/offline",
+                            "host": ["{{HOST}}"],
+                            "path": ["ride", "offline"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "schedule ride",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{rider-access-token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"scheduledAt\": \"2025-11-27T06:19:51\",\n    \"pickupLat\": 23.814476867113083,\n    \"pickupLng\": 90.43857325209895,\n    \"dropoffLat\": 23.820051870636853,\n    \"dropoffLng\": 90.4450963844251\n}",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/ride/scheduled",
+                            "host": ["{{HOST}}"],
+                            "path": ["ride", "scheduled"]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "ride cancel",
+                    "request": {
+                        "auth": {
+                            "type": "bearer",
+                            "bearer": [
+                                {
+                                    "key": "token",
+                                    "value": "{{rider-access-token}}",
+                                    "type": "string"
+                                }
+                            ]
+                        },
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "",
+                            "options": {
+                                "raw": {
+                                    "language": "json"
+                                }
+                            }
+                        },
+                        "url": {
+                            "raw": "{{HOST}}/ride/15/cancel/rider",
+                            "host": ["{{HOST}}"],
+                            "path": ["ride", "15", "cancel", "rider"]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ]
 }

@@ -1,26 +1,26 @@
 import { Op, Transaction } from "sequelize";
-import OfflinePairing, { OfflinePairingInterface } from "../model/offline-paring";
-import { OfflinePairingStatus } from "../constant/common";
+import OfflineParing, { OfflineParingInterface } from "../model/offline-paring";
+import { OfflineParingStatus } from "../constant/common";
 import UserRepo from "./user";
 
-export interface OfflinePairingRepoInterface {
-    create(pairing: OfflinePairingInterface): Promise<OfflinePairing>;
-    create(pairing: OfflinePairingInterface): Promise<OfflinePairing>;
-    findActiveByCode(code: string): Promise<OfflinePairing | null>;
+export interface OfflineParingRepoInterface {
+    create(paring: OfflineParingInterface): Promise<OfflineParing>;
+    create(paring: OfflineParingInterface): Promise<OfflineParing>;
+    findActiveByCode(code: string): Promise<OfflineParing | null>;
     markUsed(id: number): Promise<[affectedCount: number]>;
     expireOld(now: Date): Promise<[affectedCount: number]>;
 }
 
-export class OfflinePairingRepo implements OfflinePairingRepoInterface {
-    public async create(pairing: OfflinePairingInterface): Promise<OfflinePairing> {
-        return OfflinePairing.create(pairing);
+export class OfflineParingRepo implements OfflineParingRepoInterface {
+    public async create(paring: OfflineParingInterface): Promise<OfflineParing> {
+        return OfflineParing.create(paring);
     }
 
-    public async findActiveByCode(code: string): Promise<OfflinePairing | null> {
-        return OfflinePairing.findOne({
+    public async findActiveByCode(code: string): Promise<OfflineParing | null> {
+        return OfflineParing.findOne({
             where: {
                 code,
-                status: OfflinePairingStatus.ACTIVE,
+                status: OfflineParingStatus.ACTIVE,
                 expiresAt: { [Op.gte]: new Date() },
             },
             order: [["createdAt", "DESC"]],
@@ -28,9 +28,9 @@ export class OfflinePairingRepo implements OfflinePairingRepoInterface {
     }
 
     public async markUsed(id: number): Promise<[affectedCount: number]> {
-        return OfflinePairing.update(
+        return OfflineParing.update(
             {
-                status: OfflinePairingStatus.USED,
+                status: OfflineParingStatus.USED,
                 updatedAt: new Date(),
             },
             { where: { id } },
@@ -38,14 +38,14 @@ export class OfflinePairingRepo implements OfflinePairingRepoInterface {
     }
 
     public async expireOld(now: Date): Promise<[affectedCount: number]> {
-        return OfflinePairing.update(
+        return OfflineParing.update(
             {
-                status: OfflinePairingStatus.EXPIRED,
+                status: OfflineParingStatus.EXPIRED,
                 updatedAt: now,
             },
             {
                 where: {
-                    status: OfflinePairingStatus.ACTIVE,
+                    status: OfflineParingStatus.ACTIVE,
                     expiresAt: { [Op.lt]: now },
                 },
             },
@@ -53,8 +53,8 @@ export class OfflinePairingRepo implements OfflinePairingRepoInterface {
     }
 }
 
-export const newOfflinePairingRepo = async (): Promise<OfflinePairingRepoInterface> => {
-    return new OfflinePairingRepo();
+export const newOfflineParingRepo = async (): Promise<OfflineParingRepoInterface> => {
+    return new OfflineParingRepo();
 };
 
-export default OfflinePairingRepo;
+export default OfflineParingRepo;

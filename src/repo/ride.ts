@@ -1,14 +1,14 @@
 import { Op } from "sequelize";
 import Ride, { RideInterface } from "../model/ride";
 import User from "../model/user";
-import { OfflinePairingStatus, RideStatus, RideType } from "../constant/common";
+import { OfflineParingStatus, RideStatus, RideType } from "../constant/common";
 import UserRepo from "./user";
-import OfflinePairing from "../model/offline-paring";
+import OfflineParing from "../model/offline-paring";
 
 export interface RideRepoInterface {
     create(ride: RideInterface): Promise<Ride>;
     findActiveRideByRider(riderId: number, scheduledAt?: Date): Promise<Ride | null>;
-    createOffline(ride: RideInterface, offlinePairingId: number): Promise<Ride>;
+    createOffline(ride: RideInterface, offlineParingId: number): Promise<Ride>;
     findById(id: number): Promise<Ride | null>;
     findByRiderId(id: number, riderId: number): Promise<Ride | null>;
     findByDriverId(id: number, driverId: number): Promise<Ride | null>;
@@ -21,14 +21,14 @@ export class RideRepo implements RideRepoInterface {
     public async create(ride: RideInterface): Promise<Ride> {
         return Ride.create(ride);
     }
-    public async createOffline(ride: RideInterface, offlinePairingId: number): Promise<Ride> {
+    public async createOffline(ride: RideInterface, offlineParingId: number): Promise<Ride> {
         return UserRepo.withTransaction<Ride>(async (transaction) => {
             const createdRide = await Ride.create(ride, { transaction });
-            await OfflinePairing.update(
+            await OfflineParing.update(
                 {
-                    status: OfflinePairingStatus.USED,
+                    status: OfflineParingStatus.USED,
                 },
-                { where: { id: offlinePairingId }, transaction },
+                { where: { id: offlineParingId }, transaction },
             );
             return createdRide;
         });
