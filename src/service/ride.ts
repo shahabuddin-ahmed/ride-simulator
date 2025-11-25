@@ -6,7 +6,7 @@ import { RideRepoInterface } from "../repo/ride";
 import { DriverRepoInterface } from "../repo/driver";
 import { NotFoundException } from "../web/exception/not-found-exception";
 import { BadRequestException } from "../web/exception/bad-request-exception";
-import { OfflinePairingRepoInterface } from "../repo/offline-paring";
+import { OfflineParingRepoInterface } from "../repo/offline-paring";
 import config from "../config/config";
 import { OfflineRideCreateInput, OnlineRideCreateInput, ScheduledRideCreateInput } from "./types";
 
@@ -27,11 +27,11 @@ export class RideService implements RideServiceInterface {
     constructor(
         private rideRepo: RideRepoInterface,
         private driverRepo: DriverRepoInterface,
-        private offlinePairingRepo: OfflinePairingRepoInterface,
+        private offlineParingRepo: OfflineParingRepoInterface,
     ) {
         this.rideRepo = rideRepo;
         this.driverRepo = driverRepo;
-        this.offlinePairingRepo = offlinePairingRepo;
+        this.offlineParingRepo = offlineParingRepo;
     }
 
     // ========= ONLINE =========
@@ -131,16 +131,16 @@ export class RideService implements RideServiceInterface {
     // ========= OFFLINE =========
 
     async createOfflineRide(input: OfflineRideCreateInput): Promise<Ride | null> {
-        const pairing = await this.offlinePairingRepo.findActiveByCode(input.pairingCode);
-        if (!pairing) {
-            throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "Invalid or expired offline pairing code");
+        const paring = await this.offlineParingRepo.findActiveByCode(input.pairingCode);
+        if (!paring) {
+            throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "Invalid or expired offline paring code");
         }
 
         const price = this.calculatePrice(input.pickupLat, input.pickupLng, input.dropoffLat, input.dropoffLng);
 
         const payload: RideInterface = {
             riderId: input.riderId,
-            driverId: pairing.driverId,
+            driverId: paring.driverId,
             pickupLat: input.pickupLat,
             pickupLng: input.pickupLng,
             dropoffLat: input.dropoffLat,
@@ -152,7 +152,7 @@ export class RideService implements RideServiceInterface {
             paymentStatus: PaymentStatus.PAID,
         };
 
-        const created = await this.rideRepo.createOffline(payload, pairing.id!);
+        const created = await this.rideRepo.createOffline(payload, paring.id!);
         return this.rideRepo.findRideWithDetails(created.id!);
     }
 
@@ -340,7 +340,7 @@ export class RideService implements RideServiceInterface {
 export const newRideService = async (
     rideRepo: RideRepoInterface,
     driverRepo: DriverRepoInterface,
-    offlinePairingRepo: OfflinePairingRepoInterface,
+    offlineParingRepo: OfflineParingRepoInterface,
 ): Promise<RideService> => {
-    return new RideService(rideRepo, driverRepo, offlinePairingRepo);
+    return new RideService(rideRepo, driverRepo, offlineParingRepo);
 };

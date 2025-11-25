@@ -8,7 +8,7 @@ export const newDriverRouter = async (driverController: DriverControllerInterfac
 
     router.patch("/status", authenticated, requireDriver, asyncHandler(driverController.updateStatus));
     router.patch("/location", authenticated, requireDriver, asyncHandler(driverController.updateLocation));
-    router.post("/offline-pairing", authenticated, requireDriver, asyncHandler(driverController.generateOfflinePairing));
+    router.post("/offline-paring", authenticated, requireDriver, asyncHandler(driverController.generateOfflineParing));
 
     return router;
 };

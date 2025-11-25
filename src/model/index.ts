@@ -1,7 +1,7 @@
 import User from "./user";
 import Driver from "./driver";
 import Ride from "./ride";
-import OfflinePairing from "./offline-pairing";
+import OfflineParing from "./offline-paring";
 
 // USER ↔ DRIVER
 User.hasOne(Driver, {
@@ -34,11 +34,11 @@ Ride.belongsTo(User, {
 });
 
 // USER ↔ OFFLINE_PAIRING (driver)
-User.hasMany(OfflinePairing, {
+User.hasMany(OfflineParing, {
     foreignKey: "driverId",
-    as: "offlinePairings",
+    as: "offlineParings",
 });
-OfflinePairing.belongsTo(User, {
+OfflineParing.belongsTo(User, {
     foreignKey: "driverId",
     as: "driver",
 });
