@@ -49,6 +49,7 @@ Core flows:
 ### Rides
 
 -   **Online rides**
+
     -   Rider creates an online ride with pickup/dropoff coordinates
     -   Service calculates:
         -   Distance (Haversine)
@@ -57,6 +58,15 @@ Core flows:
     -   Status transitions:
         -   `REQUESTED → ASSIGNED → ACCEPTED → STARTED → COMPLETED`
         -   Cancellations: `CANCELLED_BY_RIDER`, `CANCELLED_BY_DRIVER`
+
+#### Driver assignment model (current behavior)
+
+-   **Auto-assign to the single nearest eligible driver** at request time.
+-   Eligibility = `isOnline = true`, recent `lastPingAt`, and within the configured nearby radius.
+-   No bidding/offer fan-out; the nearest valid driver is directly assigned.
+
+> **Production-style flow:** broadcast to multiple nearby drivers (WebSocket/push), let them accept/reject, and use a short-lived lock/transaction so only the first accept wins while others see the ride as taken.
+
 -   **Scheduled rides**
     -   Rider creates ride with future `scheduledAt`
     -   Stored as `type = SCHEDULED`, `status = REQUESTED`
@@ -117,8 +127,40 @@ The project uses a clean layered structure:
 
 ### Docker Compose (recommended)
 
+1. Clone from git
+
 ```bash
-docker-compose up --build
+git clone https://github.com/shahabuddin-ahmed/ride-simulator.git
+```
+
+2. Navigate into the project directory
+
+```bash
+cd ride-simulator
+```
+
+3. Install all dependencies
+
+```bash
+yarn install
+```
+
+4. Run the application using Docker Compose
+
+```bash
+docker-compose up
+```
+
+5. Run all test
+
+```bash
+yarn test
+```
+
+6. Run unit test
+
+```bash
+yarn test-unit
 ```
 
 -   Spins up the API, MySQL 8, and phpMyAdmin.
