@@ -7,6 +7,7 @@ import OfflinePairing from "../model/offline-pairing";
 
 export interface RideRepoInterface {
     create(ride: RideInterface): Promise<Ride>;
+    findActiveRideByRider(riderId: number, scheduledAt?: Date): Promise<Ride | null>;
     createOffline(ride: RideInterface, offlinePairingId: number): Promise<Ride>;
     findById(id: number): Promise<Ride | null>;
     findByRiderId(id: number, riderId: number): Promise<Ride | null>;
@@ -30,6 +31,19 @@ export class RideRepo implements RideRepoInterface {
                 { where: { id: offlinePairingId }, transaction },
             );
             return createdRide;
+        });
+    }
+
+    public async findActiveRideByRider(riderId: number, scheduledAt?: Date): Promise<Ride | null> {
+        return Ride.findOne({
+            where: {
+                riderId,
+                scheduledAt: scheduledAt || null,
+                status: {
+                    [Op.in]: [RideStatus.REQUESTED, RideStatus.ASSIGNED, RideStatus.ACCEPTED, RideStatus.STARTED],
+                },
+            },
+            order: [["createdAt", "DESC"]],
         });
     }
 

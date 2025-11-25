@@ -1,12 +1,8 @@
 import { Request, Response } from "express";
 import Joi from "joi";
 import { Controller } from "../controller";
-import {
-    OfflineRideCreateInput,
-    OnlineRideCreateInput,
-    RideServiceInterface,
-    ScheduledRideCreateInput,
-} from "../../../service/types";
+import { OfflineRideCreateInput, OnlineRideCreateInput, ScheduledRideCreateInput } from "../../../service/types";
+import { RideServiceInterface } from "../../../service/ride";
 
 export interface RideControllerInterface {
     createOnlineRide(req: Request, res: Response): any;

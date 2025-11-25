@@ -29,6 +29,7 @@ services:
       RIDE_MIN_FARE: 70
       RIDE_NEARBY_RADIUS_KM: 2
       RIDE_DRIVER_LOCATION_FRESH_MINUTES: 3
+      RIDE_SCHEDULING_DAYS_AHEAD: 30
 
   # Database
   db:

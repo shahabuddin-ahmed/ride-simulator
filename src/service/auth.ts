@@ -11,7 +11,6 @@ import { generateDriverOtpToken } from "../utils/otp";
 import { DriverInterface } from "../model/driver";
 import { normalizeMobile } from "../utils/mobile";
 import {
-    AuthServiceInterface,
     DriverOtpRequestInput,
     DriverOtpVerifyInput,
     DriverRegisterInput,
@@ -20,6 +19,20 @@ import {
 } from "./types";
 
 const BCRYPT_ROUNDS = 10;
+
+export interface AuthServiceInterface {
+    riderRegister(input: RiderRegisterInput): Promise<UserInterface>;
+    riderLogin(input: RiderLoginInput): Promise<{
+        accessToken: string;
+        user: UserInterface;
+    }>;
+    driverRegister(input: DriverRegisterInput): Promise<UserInterface>;
+    requestDriverOtp(input: DriverOtpRequestInput): Promise<{ otpToken: string }>;
+    verifyDriverOtp(input: DriverOtpVerifyInput): Promise<{
+        accessToken: string;
+        user: UserInterface;
+    }>;
+}
 
 export class AuthService implements AuthServiceInterface {
     constructor(private userRepo: UserRepoInterface) {

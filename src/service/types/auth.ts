@@ -30,17 +30,3 @@ export interface DriverRegisterInput {
     fristName?: string | null;
     lastName?: string | null;
 }
-
-export interface AuthServiceInterface {
-    riderRegister(input: RiderRegisterInput): Promise<UserInterface>;
-    riderLogin(input: RiderLoginInput): Promise<{
-        accessToken: string;
-        user: UserInterface;
-    }>;
-    driverRegister(input: DriverRegisterInput): Promise<UserInterface>;
-    requestDriverOtp(input: DriverOtpRequestInput): Promise<{ otpToken: string }>;
-    verifyDriverOtp(input: DriverOtpVerifyInput): Promise<{
-        accessToken: string;
-        user: Omit<UserInterface, "password">;
-    }>;
-}
