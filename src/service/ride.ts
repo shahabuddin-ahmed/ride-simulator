@@ -119,13 +119,33 @@ export class RideService implements RideServiceInterface {
         const now = new Date();
         const dueRides = await this.rideRepo.findDueScheduled(now);
 
-        let processed = 0;
-        for (const ride of dueRides) {
-            await this.assignNearestDriver(ride);
-            processed++;
+        if (!dueRides.length) {
+            return 0;
         }
 
-        return processed;
+        const results = await Promise.allSettled(
+            dueRides.map(async (ride) => {
+                const result = await this.assignNearestDriver(ride);
+                return !!result;
+            }),
+        );
+
+        const assignedCount = results.reduce((count, res) => {
+            if (res.status === "fulfilled" && res.value) {
+                return count + 1;
+            }
+            return count;
+        }, 0);
+
+        for (const res of results) {
+            if (res.status === "rejected") {
+                console.error("Failed to process scheduled ride", {
+                    error: res.reason,
+                });
+            }
+        }
+
+        return assignedCount;
     }
 
     // ========= OFFLINE =========

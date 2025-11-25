@@ -227,15 +227,26 @@ describe("RideService", () => {
     });
 
     describe("processDueScheduledRides", () => {
-        it("assigns each due ride", async () => {
+        it("returns count of successfully assigned due rides", async () => {
             const rides = [{ id: 1 }, { id: 2 }];
             rideRepo.findDueScheduled.mockResolvedValue(rides);
-            const assignSpy = jest.spyOn<any, any>(service as any, "assignNearestDriver").mockResolvedValue(null);
+            const assignSpy = jest
+                .spyOn<any, any>(service as any, "assignNearestDriver")
+                .mockResolvedValueOnce({ id: 1 })
+                .mockResolvedValueOnce({ id: 2 });
 
             const result = await service.processDueScheduledRides();
 
             expect(assignSpy).toHaveBeenCalledTimes(2);
             expect(result).toBe(2);
+        });
+
+        it("returns 0 when no due rides", async () => {
+            rideRepo.findDueScheduled.mockResolvedValue([]);
+
+            const result = await service.processDueScheduledRides();
+
+            expect(result).toBe(0);
         });
     });
 });
