@@ -8,10 +8,27 @@ import { NotFoundException } from "../web/exception/not-found-exception";
 import { BadRequestException } from "../web/exception/bad-request-exception";
 import { OfflinePairingRepoInterface } from "../repo/offline-paring";
 import config from "../config/config";
-import { OfflineRideCreateInput, OnlineRideCreateInput, RideServiceInterface, ScheduledRideCreateInput } from "./types";
+import { OfflineRideCreateInput, OnlineRideCreateInput, ScheduledRideCreateInput } from "./types";
+
+export interface RideServiceInterface {
+    createOnlineRide(input: OnlineRideCreateInput): Promise<RideInterface | null>;
+    getById(id: number): Promise<RideInterface>;
+    driverAcceptRide(rideId: number, driverId: number): Promise<RideInterface | null>;
+    driverStartRide(rideId: number, driverId: number): Promise<RideInterface | null>;
+    driverCompleteRide(rideId: number, driverId: number): Promise<RideInterface | null>;
+    riderCancelRide(rideId: number, riderId: number): Promise<RideInterface | null>;
+    driverCancelRide(rideId: number, driverId: number): Promise<RideInterface | null>;
+    createScheduledRide(input: ScheduledRideCreateInput): Promise<RideInterface>;
+    processDueScheduledRides(): Promise<number>;
+    createOfflineRide(input: OfflineRideCreateInput): Promise<RideInterface | null>;
+}
 
 export class RideService implements RideServiceInterface {
-    constructor(private rideRepo: RideRepoInterface, private driverRepo: DriverRepoInterface, private offlinePairingRepo: OfflinePairingRepoInterface) {
+    constructor(
+        private rideRepo: RideRepoInterface,
+        private driverRepo: DriverRepoInterface,
+        private offlinePairingRepo: OfflinePairingRepoInterface,
+    ) {
         this.rideRepo = rideRepo;
         this.driverRepo = driverRepo;
         this.offlinePairingRepo = offlinePairingRepo;
@@ -19,6 +36,10 @@ export class RideService implements RideServiceInterface {
 
     // ========= ONLINE =========
     async createOnlineRide(input: OnlineRideCreateInput): Promise<RideInterface | null> {
+        const existing = await this.rideRepo.findActiveRideByRider(input.riderId);
+        if (existing) {
+            throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "An active ride already exists for this rider");
+        }
         const price = this.calculatePrice(input.pickupLat, input.pickupLng, input.dropoffLat, input.dropoffLng);
 
         const payload: RideInterface = {
@@ -37,7 +58,13 @@ export class RideService implements RideServiceInterface {
 
         const created = await this.rideRepo.create(payload);
 
-        // Immediately try to assign the nearest online driver
+        /*
+        Immediately try to assign the nearest online driver based on live driver locations.
+        If no suitable driver is found, the ride status will be updated to NO_DRIVER.
+        NOTE: In this implementation I auto-assign a single nearest driver as a simplification.
+        In a production system, the backend would usually notify multiple nearby drivers
+        and assign the ride to the first one who accepts the request, expiring all other offers.
+        */
         return this.assignNearestDriver(created);
     }
 
@@ -47,6 +74,23 @@ export class RideService implements RideServiceInterface {
         const now = new Date();
         if (input.scheduledAt <= now) {
             throw new BadRequestException(ERROR_CODES.E_INVALID_DATA, "scheduledAt must be in the future");
+        }
+
+        now.setDate(now.getDate() + config.RIDE_SCHEDULING_DAYS_AHEAD);
+        if (input.scheduledAt > now) {
+            throw new BadRequestException(
+                ERROR_CODES.E_INVALID_DATA,
+                `scheduledAt cannot be more than ${config.RIDE_SCHEDULING_DAYS_AHEAD} days in advance`,
+            );
+        }
+
+        // currently check only same time but it should be extended to a time window
+        const existing = await this.rideRepo.findActiveRideByRider(input.riderId, input.scheduledAt);
+        if (existing) {
+            throw new BadRequestException(
+                ERROR_CODES.E_INVALID_DATA,
+                "A scheduled ride already exists for this rider at the specified time",
+            );
         }
 
         const price = this.calculatePrice(input.pickupLat, input.pickupLng, input.dropoffLat, input.dropoffLng);

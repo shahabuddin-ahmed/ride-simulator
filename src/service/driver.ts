@@ -8,8 +8,13 @@ import { OfflinePairingRepoInterface } from "../repo/offline-paring";
 import { OfflinePairingStatus } from "../constant/common";
 import { generateCode } from "../utils/otp";
 import config from "../config/config";
-import { DriverServiceInterface, UpdateDriverLocationInput, UpdateDriverStatusInput } from "./types";
+import { UpdateDriverLocationInput, UpdateDriverStatusInput } from "./types";
 
+export interface DriverServiceInterface {
+    updateStatus(input: UpdateDriverStatusInput): Promise<DriverInterface>;
+    updateLocation(input: UpdateDriverLocationInput): Promise<DriverInterface>;
+    generateOfflinePairing(userId: number): Promise<OfflinePairingInterface>;
+}
 export class DriverService implements DriverServiceInterface {
     constructor(private driverRepo: DriverRepoInterface, private offlinePairingRepo: OfflinePairingRepoInterface) {
         this.driverRepo = driverRepo;

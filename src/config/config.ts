@@ -49,6 +49,7 @@ interface Config {
 	OTP_SECRET?: string;
 	RIDE_PRICING: RidePricingConfig;
 	RIDE_ASSIGNMENT: RideAssignmentConfig;
+	RIDE_SCHEDULING_DAYS_AHEAD: number;
 }
 
 const config: Config = {
@@ -90,6 +91,7 @@ const config: Config = {
 		NEARBY_RADIUS_KM: Number(process.env.RIDE_NEARBY_RADIUS_KM) || 2,
 		DRIVER_LOCATION_FRESH_MINUTES: Number(process.env.RIDE_DRIVER_LOCATION_FRESH_MINUTES) || 3,
 	},
+	RIDE_SCHEDULING_DAYS_AHEAD: Number(process.env.RIDE_SCHEDULING_DAYS_AHEAD) || 30,
 };
 
 export default config;

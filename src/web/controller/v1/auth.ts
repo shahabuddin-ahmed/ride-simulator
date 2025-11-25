@@ -2,13 +2,13 @@ import { Request, Response } from "express";
 import Joi from "joi";
 import { Controller } from "../controller";
 import {
-    AuthServiceInterface,
     RiderRegisterInput,
     RiderLoginInput,
     DriverOtpRequestInput,
     DriverOtpVerifyInput,
     DriverRegisterInput,
 } from "../../../service/types";
+import { AuthServiceInterface } from "../../../service/auth";
 
 export interface AuthControllerInterface {
     riderRegister(req: Request, res: Response): any;

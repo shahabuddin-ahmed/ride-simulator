@@ -11,9 +11,3 @@ export interface UpdateDriverLocationInput {
     lat: number;
     lng: number;
 }
-
-export interface DriverServiceInterface {
-    updateStatus(input: UpdateDriverStatusInput): Promise<DriverInterface>;
-    updateLocation(input: UpdateDriverLocationInput): Promise<DriverInterface>;
-    generateOfflinePairing(userId: number): Promise<OfflinePairingInterface>;
-}
